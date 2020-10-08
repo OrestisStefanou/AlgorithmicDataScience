@@ -2,6 +2,7 @@
 #define METRICS_H
 #include<vector>
 #include <bits/stdc++.h> 
+#include<string.h>
 
 using namespace std;
 
@@ -13,7 +14,8 @@ private:
 public:
     Metrics();
     ~Metrics();
-    int manhattan_dist(vector<double> a,vector<double> b);
+    int get_distance(vector<double> a,vector<double> b,char *type);
+    //Add more distance metrics here
 };
 
 Metrics::Metrics()
@@ -24,12 +26,17 @@ Metrics::~Metrics()
 {
 }
 
-//Returns the manhattan distance between vector a and vector b
-int Metrics::manhattan_dist(vector<double> a,vector<double> b){
+//Returns the "type" distance between vector a and vector b
+//type = "L1"->returns Manhatan distance
+int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
     int distance = 0;
-    for (int i = 0; i < a.size(); i++)
-    {
-        distance += abs(double(a[i]) - double(b[i]));
+
+    if(strcmp((char *)"L1",type)==0){
+        for (int i = 0; i < a.size(); i++)
+        {
+            distance += abs(double(a[i]) - double(b[i]));
+        }
+        return distance;
     }
     return distance;
 }

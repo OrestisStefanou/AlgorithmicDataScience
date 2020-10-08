@@ -1,5 +1,6 @@
 #include"reader.hpp"
 #include"metrics.hpp"
+#include"hashtable.hpp"
 
 using namespace std;
  
@@ -10,6 +11,13 @@ int main()
     
     Metrics metrics = Metrics();
     cout << "Manhattan distance between first and second image is:" ;
-    cout << metrics.manhattan_dist(data[0],data[1]) << endl;
+    cout << metrics.get_distance(data[0],data[1],(char *)"L1") << endl;
+
+    Hashtable table = Hashtable(10,1);
+    for (int i = 0; i < 20; i++)
+    {
+        table.insert(data[i],i);
+    }
+    table.print();
     return 0;
 }
