@@ -15,6 +15,7 @@ public:
     Hashtable(int size,int hash_type);
     int hash_function(vector<double> &image,int testing);
     void insert(vector<double> &image,int image_index);
+    vector<int> get_bucket_imgs(int bucket_index);
     void print();   //Test function
     ~Hashtable();
 };
@@ -50,6 +51,11 @@ void Hashtable::print(){
         cout << endl;
     }
     
+}
+
+//Returns the vector with the images indexes that are in bucket "bucket index"
+vector<int> Hashtable::get_bucket_imgs(int bucket_index){
+    return this->hashtable[bucket_index];
 }
 
 Hashtable::~Hashtable()
