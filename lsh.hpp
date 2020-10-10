@@ -3,6 +3,7 @@
 #include"hashtable.hpp"
 #include"metrics.hpp"
 #include<unordered_map>
+#include<bits/stdc++.h>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ private:
 public:
     LSH(int ,int ,vector<vector<double>> &data_vector);
     int nearest_neighbor(vector<double> q,int img_index);
+    vector<int> knn(vector<double> q,int img_index,int k);
     ~LSH();
 };
 
@@ -28,7 +30,7 @@ LSH::LSH(int k,int L,vector<vector<double>> &data_vector)
     this->L = L;
     for (int i = 0; i < L; i++)
     {   
-        Hashtable *table = new Hashtable(data_vector.size()/8,L);   //Create a Hashtable class
+        Hashtable *table = new Hashtable(data_vector.size()/16,L);   //Create a Hashtable class
         this->hashtables.push_back(table);  //Insert it in the hashtables vector
     }
     
@@ -44,7 +46,7 @@ LSH::LSH(int k,int L,vector<vector<double>> &data_vector)
     }
 }
 
-//Returns the index of the nearest neighbor of image q
+//Returns the index of the nearest neighbor of image q.To img_index en xriazete en apla gia testing
 int LSH::nearest_neighbor(vector<double> q,int img_index){
     Metrics metrics = Metrics();
     //Create a map where we hold the distances from the closest images from each Hashtable
@@ -88,8 +90,69 @@ int LSH::nearest_neighbor(vector<double> q,int img_index){
     return min_dist_img_index;
 }
 
+vector<int> LSH::knn(vector<double> q,int img_index,int k){
+    Metrics metrics = Metrics();
+    //Create a map where we hold the distances from the closest images from each Hashtable
+    unordered_map<int,int> img_distances;
+    vector<pair<int,int>> distances;    //A vector of pairs(img_index,img_distance from q)
+
+    //Go through each Hashtable
+    for (int i = 0; i < L; i++)
+    {
+        //Get the hash index for q
+        int hash_index = this->hashtables[i]->hash_function(q,img_index);
+        //Get the image indexes that are in bucket hash index from hashtable i
+        vector<int> img_indexes = this->hashtables[i]->get_bucket_imgs(hash_index);
+        //Caluclate the distances from the images and save them in a new vector
+        vector<pair<int,int>> temp_distances;   //Pair is the index of the image and it's distance from q
+        for (int j = 0; j < img_indexes.size(); j++)
+        {
+            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,(char *)"L1");
+            temp_distances.push_back(make_pair(img_indexes[j],manhattan_dist));
+        }
+        //Sort temp distances based on the distance
+        sort(temp_distances.begin(), temp_distances.end(), sortbysec);
+        //Add the k pairs (image_index,distance from q) in the map
+        for (int j = 0; j < temp_distances.size(); j++)
+        {
+            if (j>k)
+            {
+                break; 
+            }
+            img_distances.insert(temp_distances[j]);
+        }
+    }
+    //Print the map to see if it works
+    for (auto& x: img_distances)
+        std::cout << x.first << ": " << x.second << std::endl;
+
+    //Insert the pairs from img_distances in a vector,sort it and return the k first indexes.
+    for(auto& x:img_distances){
+        distances.push_back(make_pair(x.first,x.second));
+    }
+    //Sort the vector
+    sort(distances.begin(),distances.end(), sortbysec);
+    //Create a new vector to return the results
+    vector<int> results;
+    for (int i = 0; i < distances.size(); i++)
+    {
+        if (i > k)
+        {
+            break;
+        }
+        results.push_back(distances[i].first);
+    }
+    
+    return results;       
+}
+
 LSH::~LSH()
 {
+    for (int i = 0; i < this->hashtables.size(); i++)
+    {
+        delete this->hashtables[i];
+    }
+    
 }
 
 

@@ -30,5 +30,12 @@ int main()
         test_img.push_back(20);
     }
     cout << lsh.nearest_neighbor(test_img,600001) << endl;
+    cout << "Testing KNN" << endl;
+    vector<int> results = lsh.knn(data[100],100,10);
+    for (int i = 0; i < results.size(); i++)
+    {
+        cout << results[i] << endl;
+    }
+    
     return 0;
 }
