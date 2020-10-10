@@ -18,6 +18,7 @@ public:
     LSH(int ,int ,vector<vector<double>> &data_vector);
     int nearest_neighbor(vector<double> q,int img_index);
     vector<int> knn(vector<double> q,int img_index,int k);
+    vector<int> range_search(vector<double> q,int img_index,int r,int c);
     ~LSH();
 };
 
@@ -75,8 +76,8 @@ int LSH::nearest_neighbor(vector<double> q,int img_index){
         img_distances.insert(img_dist);
     }
     //Print the map to see if it works
-    for (auto& x: img_distances)
-        std::cout << x.first << ": " << x.second << std::endl;
+    //for (auto& x: img_distances)
+    //    std::cout << x.first << ": " << x.second << std::endl;
     //Find the img_index with the smallest distance and return it
     auto it = img_distances.begin();
     int min_dist = it->second;
@@ -123,8 +124,8 @@ vector<int> LSH::knn(vector<double> q,int img_index,int k){
         }
     }
     //Print the map to see if it works
-    for (auto& x: img_distances)
-        std::cout << x.first << ": " << x.second << std::endl;
+    //for (auto& x: img_distances)
+    //    std::cout << x.first << ": " << x.second << std::endl;
 
     //Insert the pairs from img_distances in a vector,sort it and return the k first indexes.
     for(auto& x:img_distances){
@@ -144,6 +145,37 @@ vector<int> LSH::knn(vector<double> q,int img_index,int k){
     }
     
     return results;       
+}
+
+vector<int> LSH::range_search(vector<double> q,int img_index,int r,int c=1){
+    Metrics metrics = Metrics();
+    //Create a map where we hold the distances from the closest images from each Hashtable
+    unordered_map<int,int> img_distances;
+
+    //Go through each Hashtable
+    for (int i = 0; i < L; i++)
+    {
+        //Get the hash index for q
+        int hash_index = this->hashtables[i]->hash_function(q,img_index);
+        //Get the image indexes that are in bucket hash index from hashtable i
+        vector<int> img_indexes = this->hashtables[i]->get_bucket_imgs(hash_index);
+        //Calculate the distances from image q
+        for (int j = 0; j < img_indexes.size(); j++)
+        {
+            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,(char *)"L1");
+            if(manhattan_dist < c*r){
+                //Add the pair (image_index,distance from q) in the map
+                pair<int,int> img_dist (img_indexes[j],manhattan_dist);
+                img_distances.insert(img_dist);
+            }
+        }
+    }    
+    //Create a vector with the images in range r and return it
+    vector<int> results;
+    for(auto& x:img_distances){
+        results.push_back(x.first);
+    }
+    return results;
 }
 
 LSH::~LSH()

@@ -36,6 +36,11 @@ int main()
     {
         cout << results[i] << endl;
     }
-    
+    cout << "Testing range search" << endl;
+    results = lsh.range_search(data[100],100,10);
+    for (int i = 0; i < results.size(); i++)
+    {
+        cout << results[i] << endl;
+    }
     return 0;
 }
