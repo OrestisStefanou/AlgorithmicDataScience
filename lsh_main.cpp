@@ -3,6 +3,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include <time.h>
 
 using namespace std;
 
@@ -143,5 +144,41 @@ int main(int argc, char const *argv[])
     }    
 
     LSH lsh = LSH(k,L,training_data);
+
+    ofstream outfile; 
+    outfile.open(output_file);  //Create the outpout file
+
+    for(int i=0;i<10;i++){
+        //Find the approximate N nearest neighbors
+        time_t start,end;
+        time(&start);
+        vector<pair<int,int>> appr_results = lsh.knn(query_data[i],i,N);
+        time(&end);
+        double appr_knn_time = difftime(end,start);
+        //Find the exact nearest neighbors
+        time(&start);
+        vector<pair<int,int>> exact_results = lsh.exact_nearest_neighbor(query_data[i],N);
+        time(&end);
+        double exact_knn_time = difftime(end,start);
+        //Do the range search
+        vector<int> range_results = lsh.range_search(query_data[i],i,R);
+        //Write the results in the output file
+        outfile << "Query:" << i << "\n";
+        for (int j = 0; j < appr_results.size(); j++)
+        {
+            outfile << "Nearest neighbor-" << j + 1 << ": " << appr_results[j].first << "\n";
+            outfile << "distanceLSH:" << appr_results[j].second << "\n";
+            outfile << "distanceTrue:" << exact_results[j].second << "\n";
+        }
+        outfile << "tLSH:" << setprecision(5) << appr_knn_time << "\n";
+        outfile << "tTrue:" << setprecision(5) << exact_knn_time << "\n";
+        outfile << "R-near neighbors:\n";
+        for (int j = 0; j < range_results.size(); j++)
+        {
+            outfile << range_results[j] << "\n";
+        }
+    }
+    outfile.close();
+    
     return 0;
 }

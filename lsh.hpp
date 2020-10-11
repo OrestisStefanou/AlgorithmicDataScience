@@ -17,7 +17,7 @@ private:
 public:
     LSH(int ,int ,vector<vector<double>> &data_vector);
     pair<int,int> nearest_neighbor(vector<double> q,int img_index);
-    vector<pair<int,int>> knn(vector<double> q,int img_index,int k);
+    vector<pair<int,int>> knn(vector<double> q,int img_index,int k);    //Approximate
     vector<int> range_search(vector<double> q,int img_index,double r,int c);
     vector<pair<int,int>> exact_nearest_neighbor(vector<double> q,int k);
     ~LSH();
