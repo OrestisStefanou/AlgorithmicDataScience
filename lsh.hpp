@@ -16,9 +16,10 @@ private:
     vector<vector<double>> data;
 public:
     LSH(int ,int ,vector<vector<double>> &data_vector);
-    int nearest_neighbor(vector<double> q,int img_index);
-    vector<int> knn(vector<double> q,int img_index,int k);
+    pair<int,int> nearest_neighbor(vector<double> q,int img_index);
+    vector<pair<int,int>> knn(vector<double> q,int img_index,int k);
     vector<int> range_search(vector<double> q,int img_index,int r,int c);
+    pair<int,int> exact_nearest_neighbor(vector<double> q);
     ~LSH();
 };
 
@@ -48,7 +49,7 @@ LSH::LSH(int k,int L,vector<vector<double>> &data_vector)
 }
 
 //Returns the index of the nearest neighbor of image q.To img_index en xriazete en apla gia testing
-int LSH::nearest_neighbor(vector<double> q,int img_index){
+pair<int,int> LSH::nearest_neighbor(vector<double> q,int img_index){
     Metrics metrics = Metrics();
     //Create a map where we hold the distances from the closest images from each Hashtable
     unordered_map<int,int> img_distances;
@@ -88,10 +89,10 @@ int LSH::nearest_neighbor(vector<double> q,int img_index){
             min_dist_img_index = x.first;
         }
     }
-    return min_dist_img_index;
+    return make_pair(min_dist_img_index,min_dist);
 }
 
-vector<int> LSH::knn(vector<double> q,int img_index,int k){
+vector<pair<int,int>> LSH::knn(vector<double> q,int img_index,int k){
     Metrics metrics = Metrics();
     //Create a map where we hold the distances from the closest images from each Hashtable
     unordered_map<int,int> img_distances;
@@ -134,14 +135,14 @@ vector<int> LSH::knn(vector<double> q,int img_index,int k){
     //Sort the vector
     sort(distances.begin(),distances.end(), sortbysec);
     //Create a new vector to return the results
-    vector<int> results;
+    vector<pair<int,int>> results;
     for (int i = 0; i < distances.size(); i++)
     {
         if (i > k)
         {
             break;
         }
-        results.push_back(distances[i].first);
+        results.push_back(distances[i]);
     }
     
     return results;       
@@ -176,6 +177,24 @@ vector<int> LSH::range_search(vector<double> q,int img_index,int r,int c=1){
         results.push_back(x.first);
     }
     return results;
+}
+
+pair<int,int> LSH::exact_nearest_neighbor(vector<double> q){
+    Metrics metrics = Metrics();
+    int min_distance = metrics.get_distance(this->data[0],q,(char *)"L1");
+    int closest_img_index = 0;
+
+    for (int i = 0; i < this->data.size(); i++)
+    {
+        int distance = metrics.get_distance(this->data[i],q,(char *)"L1");
+        if (distance < min_distance)
+        {
+            min_distance = distance;
+            closest_img_index = i;
+        }
+        
+    }
+    return make_pair(closest_img_index,min_distance);
 }
 
 LSH::~LSH()

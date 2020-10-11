@@ -22,25 +22,32 @@ int main()
     //table.print();
 
     LSH lsh = LSH(10,10,data);
-    cout << lsh.nearest_neighbor(data[100],100) << endl;
+    pair<int,int> temp_results;
+    temp_results = lsh.nearest_neighbor(data[100],100);
+    cout << "Appr nn of img 100 is " << temp_results.first << " with distance "<< temp_results.second << endl;
 
     vector<double> test_img;
     for (int i = 0; i < 784; i++)
     {
         test_img.push_back(20);
     }
-    cout << lsh.nearest_neighbor(test_img,600001) << endl;
+    temp_results = lsh.nearest_neighbor(test_img,600001);
+    cout << "Appr nn of test_img is " << temp_results.first << " with distance "<< temp_results.second << endl;
     cout << "Testing KNN" << endl;
-    vector<int> results = lsh.knn(data[100],100,10);
+    vector<pair<int,int>> results = lsh.knn(data[100],100,10);
     for (int i = 0; i < results.size(); i++)
     {
-        cout << results[i] << endl;
+        cout << results[i].first << ":" << results[i].second << endl;
     }
     cout << "Testing range search" << endl;
-    results = lsh.range_search(data[100],100,10);
-    for (int i = 0; i < results.size(); i++)
+    vector<int> range_results = lsh.range_search(data[100],100,10);
+    //range_results = lsh.range_search(data[100],100,10);
+    for (int i = 0; i < range_results.size(); i++)
     {
-        cout << results[i] << endl;
+        cout << range_results[i] << endl;
     }
+    cout << "Testing exact nearest neighbor" << endl;
+    temp_results = lsh.exact_nearest_neighbor(data[100]);
+    cout << "Exact neighbor of img 100 is:" << temp_results.first << ":" << temp_results.second << endl;
     return 0;
 }
