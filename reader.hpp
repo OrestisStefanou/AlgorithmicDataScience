@@ -18,7 +18,7 @@ int ReverseInt (int i)
 }
 
 //Read the MNIST data and load the dataset to data_vector
-void ReadData(vector<vector<double>> &data_vector,char *data_path)
+int ReadData(vector<vector<double>> &data_vector,char *data_path)
 {
     ifstream file (data_path,ios::binary);
     if (file.is_open())
@@ -58,9 +58,11 @@ void ReadData(vector<vector<double>> &data_vector,char *data_path)
                 }
             }
         }
+        return 0;
     }else
     {
-        cout << "Something went wrond at opening the file";
+        cout << "Something went wrond at opening the file\n";
+        return -1;
     }
     
 }

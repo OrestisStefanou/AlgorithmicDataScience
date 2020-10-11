@@ -11,15 +11,15 @@ class LSH
 {
 private:
     vector<Hashtable *> hashtables;  //Array with pointers to Hashtable classes
-    int k;  
+    int K;  
     int L;  
     vector<vector<double>> data;
 public:
     LSH(int ,int ,vector<vector<double>> &data_vector);
     pair<int,int> nearest_neighbor(vector<double> q,int img_index);
     vector<pair<int,int>> knn(vector<double> q,int img_index,int k);
-    vector<int> range_search(vector<double> q,int img_index,int r,int c);
-    pair<int,int> exact_nearest_neighbor(vector<double> q);
+    vector<int> range_search(vector<double> q,int img_index,double r,int c);
+    vector<pair<int,int>> exact_nearest_neighbor(vector<double> q,int k);
     ~LSH();
 };
 
@@ -28,7 +28,7 @@ public:
 LSH::LSH(int k,int L,vector<vector<double>> &data_vector)
 {
     this->data = data_vector;   //Create a copy of the dataset
-    this->k = k;
+    this->K = k;
     this->L = L;
     for (int i = 0; i < L; i++)
     {   
@@ -55,7 +55,7 @@ pair<int,int> LSH::nearest_neighbor(vector<double> q,int img_index){
     unordered_map<int,int> img_distances;
 
     //Go through each Hashtable
-    for (int i = 0; i < L; i++)
+    for (int i = 0; i < this->L; i++)
     {
         //Get the hash index for q
         int hash_index = this->hashtables[i]->hash_function(q,img_index);
@@ -99,7 +99,7 @@ vector<pair<int,int>> LSH::knn(vector<double> q,int img_index,int k){
     vector<pair<int,int>> distances;    //A vector of pairs(img_index,img_distance from q)
 
     //Go through each Hashtable
-    for (int i = 0; i < L; i++)
+    for (int i = 0; i < this->L; i++)
     {
         //Get the hash index for q
         int hash_index = this->hashtables[i]->hash_function(q,img_index);
@@ -117,7 +117,7 @@ vector<pair<int,int>> LSH::knn(vector<double> q,int img_index,int k){
         //Add the k pairs (image_index,distance from q) in the map
         for (int j = 0; j < temp_distances.size(); j++)
         {
-            if (j>k)
+            if (j>=k)
             {
                 break; 
             }
@@ -138,7 +138,7 @@ vector<pair<int,int>> LSH::knn(vector<double> q,int img_index,int k){
     vector<pair<int,int>> results;
     for (int i = 0; i < distances.size(); i++)
     {
-        if (i > k)
+        if (i >= k)
         {
             break;
         }
@@ -148,13 +148,13 @@ vector<pair<int,int>> LSH::knn(vector<double> q,int img_index,int k){
     return results;       
 }
 
-vector<int> LSH::range_search(vector<double> q,int img_index,int r,int c=1){
+vector<int> LSH::range_search(vector<double> q,int img_index,double r,int c=1){
     Metrics metrics = Metrics();
     //Create a map where we hold the distances from the closest images from each Hashtable
     unordered_map<int,int> img_distances;
 
     //Go through each Hashtable
-    for (int i = 0; i < L; i++)
+    for (int i = 0; i < this->L; i++)
     {
         //Get the hash index for q
         int hash_index = this->hashtables[i]->hash_function(q,img_index);
@@ -179,22 +179,29 @@ vector<int> LSH::range_search(vector<double> q,int img_index,int r,int c=1){
     return results;
 }
 
-pair<int,int> LSH::exact_nearest_neighbor(vector<double> q){
+vector<pair<int,int>> LSH::exact_nearest_neighbor(vector<double> q,int k){
     Metrics metrics = Metrics();
-    int min_distance = metrics.get_distance(this->data[0],q,(char *)"L1");
-    int closest_img_index = 0;
+    vector<pair<int,int>> results;
+    vector<pair<int,int>> distances;
 
+    //Calculate the distances from all the images and insert them in a vector
     for (int i = 0; i < this->data.size(); i++)
     {
         int distance = metrics.get_distance(this->data[i],q,(char *)"L1");
-        if (distance < min_distance)
-        {
-            min_distance = distance;
-            closest_img_index = i;
-        }
-        
+        distances.push_back(make_pair(i,distance));
     }
-    return make_pair(closest_img_index,min_distance);
+    //Sort the distances vector
+    sort(distances.begin(),distances.end(), sortbysec);
+    //Insert the first k values in results vector and return it
+    for (int i = 0; i < this->data.size(); i++)
+    {
+        if (i >= k)
+        {
+            break;
+        }
+        results.push_back(distances[i]);
+    }
+    return results;
 }
 
 LSH::~LSH()

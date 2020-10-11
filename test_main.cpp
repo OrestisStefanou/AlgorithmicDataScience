@@ -47,7 +47,10 @@ int main()
         cout << range_results[i] << endl;
     }
     cout << "Testing exact nearest neighbor" << endl;
-    temp_results = lsh.exact_nearest_neighbor(data[100]);
-    cout << "Exact neighbor of img 100 is:" << temp_results.first << ":" << temp_results.second << endl;
+    results = lsh.exact_nearest_neighbor(data[100],5);
+    for (int i = 0; i < results.size(); i++)
+    {
+        cout << results[i].first << ":" << results[i].second << endl;
+    }
     return 0;
 }
