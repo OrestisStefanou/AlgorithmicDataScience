@@ -68,8 +68,8 @@ int Hashtable::hash_function(vector<double> &image,int testing){
         hash_results.push_back(hash);
     }
     //Concatenate the hash_results to one final result
-
-    return testing % this->table_size;
+    
+    return testing % this->table_size;  //Return to teliko result tis hash function
 }
 
 //Inset the index of image in the Hashtable

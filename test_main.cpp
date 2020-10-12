@@ -52,6 +52,10 @@ int main()
     {
         cout << results[i].first << ":" << results[i].second << endl;
     }
+<<<<<<< HEAD
     printf("Orestis");
+=======
+    ///test
+>>>>>>> c343f1321e9d4661f02242a097fc427ebbd5a9c9
     return 0;
 }

@@ -34,6 +34,7 @@ LSH::LSH(int k,int L,vector<vector<double>> &data_vector,int r)
     this->r = r;
     for (int i = 0; i < L; i++)
     {   
+        //Dimiourgo L Hashtable to kathena me diki tou hash function g
         Hashtable *table = new Hashtable(data_vector.size()/16,i,k,r*10,r,data_vector[0].size());   //Create a Hashtable class
         this->hashtables.push_back(table);  //Insert it in the hashtables vector
     }

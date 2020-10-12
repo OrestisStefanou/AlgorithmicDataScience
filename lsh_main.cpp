@@ -143,7 +143,7 @@ int main(int argc, char const *argv[])
         exit(1);
     }    
 
-    LSH lsh = LSH(k,L,training_data);
+    LSH lsh = LSH(k,L,training_data,R);
 
     ofstream outfile; 
     outfile.open(output_file);  //Create the outpout file
