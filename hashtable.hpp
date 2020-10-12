@@ -2,6 +2,7 @@
 #define HASHTABLE_H
 #include<vector>
 #include<iostream>
+#include<time.h>
 
 using namespace std;
 
@@ -11,8 +12,11 @@ private:
     vector<int> *hashtable;     //Hashtable me ta index ton ikonon.Pinakas me vectors(buckets)
     int hash_type;            //To int en tixeo,theloume kati pu tha kamni diaforetiki hashfunction gia kathe Hashtable
     int table_size;
+    int K;
+    int w;
+    vector<int> s;          //To dianisma s apo diafania 19
 public:
-    Hashtable(int size,int hash_type);
+    Hashtable(int size,int hash_type,int k,int w,int r,int d);
     int hash_function(vector<double> &image,int testing);
     void insert(vector<double> &image,int image_index);
     vector<int> get_bucket_imgs(int bucket_index);
@@ -20,16 +24,51 @@ public:
     ~Hashtable();
 };
 
-//Ston constructor prepi kapos meso pu kapio orismatos na tou leme ti hash function na eshi to Hashtable
-Hashtable::Hashtable(int size,int hash_type)
+//To hash_type ine apla gia ton random seed generator
+//To size ine to size tou Hashtable
+//To k,w,r,d ine pu tis diafanies(sel.19)
+Hashtable::Hashtable(int size,int hash_type,int k,int w,int r,int d)
 {
     this->hashtable = new vector<int>[size];
     this->hash_type = hash_type;
     this->table_size = size;
+    this->K = k;
+    this->w = w;
+
+    srand (hash_type);
+    //Create vector s
+    for (int i = 0; i < d; i++)
+    {
+        this->s.push_back(rand() % (w-1) + 0);
+    }
+    
 }
 
 //Mia tixea hash function.To int testing en xriazete apla en gia tora
 int Hashtable::hash_function(vector<double> &image,int testing){
+    vector<int>a;
+    vector<int>hash_results;    //h1,h2,...,hk
+    for (int counter = 0; counter < this->K; counter++)
+    {
+        /*Calculate a vector(o vector a apo tis diafanies(sel 19)*/
+        for (int i = 0; i < this->s.size(); i++)
+        {
+            a.push_back((image[i]-s[i])/w);
+        }
+        //Calculate h(image)
+        int hash = a[a.size()-1];
+        int m = 10;     //TOUTO DAME PREPI NA ALLAKSI
+        int M = 10;      //PREPI NA ALLAKSI
+        for (int d = a.size()-2; d >= 0; d--)
+        {
+            hash+=a[d] * m;
+            m = m*m;
+        }
+        hash = hash % M;
+        hash_results.push_back(hash);
+    }
+    //Concatenate the hash_results to one final result
+
     return testing % this->table_size;
 }
 

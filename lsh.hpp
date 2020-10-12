@@ -13,9 +13,10 @@ private:
     vector<Hashtable *> hashtables;  //Array with pointers to Hashtable classes
     int K;  
     int L;  
+    int r;
     vector<vector<double>> data;
 public:
-    LSH(int ,int ,vector<vector<double>> &data_vector);
+    LSH(int ,int ,vector<vector<double>> &data_vector,int r);
     pair<int,int> nearest_neighbor(vector<double> q,int img_index);
     vector<pair<int,int>> knn(vector<double> q,int img_index,int k);    //Approximate
     vector<int> range_search(vector<double> q,int img_index,double r,int c);
@@ -25,14 +26,15 @@ public:
 
 //k->ακέραιο πλήθος k των LSH συναρτήσεων hi που χρησιμοποιούνται για τον ορισμό των g
 //ο ακέραιος αριθμός L των πινάκων κατακερματισμού
-LSH::LSH(int k,int L,vector<vector<double>> &data_vector)
+LSH::LSH(int k,int L,vector<vector<double>> &data_vector,int r)
 {
     this->data = data_vector;   //Create a copy of the dataset
     this->K = k;
     this->L = L;
+    this->r = r;
     for (int i = 0; i < L; i++)
     {   
-        Hashtable *table = new Hashtable(data_vector.size()/16,L);   //Create a Hashtable class
+        Hashtable *table = new Hashtable(data_vector.size()/16,i,k,r*10,r,data_vector[0].size());   //Create a Hashtable class
         this->hashtables.push_back(table);  //Insert it in the hashtables vector
     }
     
