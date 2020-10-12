@@ -56,9 +56,10 @@ int Hashtable::hash_function(vector<double> &image,int testing){
             a.push_back((image[i]-s[i])/w);
         }
         //Calculate h(image)
-        int hash = a[a.size()-1];
+        
         int m = 10;     //TOUTO DAME PREPI NA ALLAKSI
         int M = 10;      //PREPI NA ALLAKSI
+        int hash = a[a.size()-1] % M;
         for (int d = a.size()-2; d >= 0; d--)
         {
             hash+=(a[d] * m) % M;
