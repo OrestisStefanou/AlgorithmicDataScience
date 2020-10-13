@@ -3,6 +3,7 @@
 #include<vector>
 #include<iostream>
 #include<time.h>
+#include<math.h>
 
 using namespace std;
 
@@ -14,7 +15,7 @@ private:
     int table_size;
     int K;
     int w;
-    vector<int> s;          //To dianisma s apo diafania 19
+    vector<vector<int>> s_vectors;          //To dianisma s apo diafania 19
 public:
     Hashtable(int size,int hash_type,int k,int w,int r,int d);
     int hash_function(vector<double> &image,int testing);
@@ -35,11 +36,13 @@ Hashtable::Hashtable(int size,int hash_type,int k,int w,int r,int d)
     this->K = k;
     this->w = w;
 
-    srand (hash_type);
-    //Create vector s
-    for (int i = 0; i < d; i++)
-    {
-        this->s.push_back(rand() % (w-1) + 0);
+    for(int i=0;i<k;i++){
+        srand (hash_type + i);
+        //Create vector s_vectors
+        for (int j = 0; j < d; j++)
+        {
+            this->s_vectors[i].push_back(rand() % (w-1) + 0);
+        }
     }
     
 }
@@ -47,30 +50,38 @@ Hashtable::Hashtable(int size,int hash_type,int k,int w,int r,int d)
 //Mia tixea hash function.To int testing en xriazete apla en gia tora
 int Hashtable::hash_function(vector<double> &image,int testing){
     vector<int>a;
-    vector<int>hash_results;    //h1,h2,...,hk
+    vector<unsigned int>hash_results;    //h1,h2,...,hk
     for (int counter = 0; counter < this->K; counter++)
     {
         /*Calculate a vector(o vector a apo tis diafanies(sel 19)*/
-        for (int i = 0; i < this->s.size(); i++)
+        for (int i = 0; i < this->s_vectors[counter].size(); i++)
         {
-            a.push_back((image[i]-s[i])/w);
+            double temp_a = double(image[i]-s_vectors[counter][i])/double(w);
+            a.push_back(int(round(temp_a)));
         }
         //Calculate h(image)
         
-        int m = 10;     //TOUTO DAME PREPI NA ALLAKSI
-        int M = 10;      //PREPI NA ALLAKSI
+        int m = pow (2,32-3);     //TOUTO DAME PREPI NA ALLAKSI
+        int M = pow (2, 32/this->K);      //PREPI NA ALLAKSI
         int hash = a[a.size()-1] % M;
         for (int d = a.size()-2; d >= 0; d--)
         {
             hash+=(a[d] * m) % M;
-            m = m*m;
+            m = m*m;    //Overflow?
         }
         hash = hash % M;
         hash_results.push_back(hash);
     }
     //Concatenate the hash_results to one final result
+    unsigned int final_hash=0;
+    //O tipos pu kamnoume concat ta hash results(pou to stack overflow pu estile o xamodrakas stis apories)
+    //unsigned int temp = (byte1) | (byte2 << 8) | (byte3 << 16) | (byte4 << 24);
+    for (int i = 0; i < hash_results.size() ; i++)
+    {
+        final_hash = final_hash | hash_results[i] << i*8 ;
+    }
     
-    return testing % this->table_size;  //Return to teliko result tis hash function
+    return final_hash;  //Return to teliko result tis hash function
 }
 
 //Inset the index of image in the Hashtable
