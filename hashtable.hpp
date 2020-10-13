@@ -84,7 +84,7 @@ int Hashtable::hash_function(vector<double> &image,int testing){
         final_hash = final_hash | hash_results[i] << i*8 ;
     }
     
-    return final_hash;  //Return to teliko result tis hash function
+    return final_hash % 60000/16;  //Return to teliko result tis hash function
 }
 
 //Inset the index of image in the Hashtable
