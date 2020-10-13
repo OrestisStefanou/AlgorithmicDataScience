@@ -36,6 +36,9 @@ Hashtable::Hashtable(int size,int hash_type,int k,int w,int r,int d)
     this->K = k;
     this->w = w;
 
+    //Resize s_vectors
+    this->s_vectors.resize(k,vector<int>(d));   //Resize the vector to fit the data
+
     for(int i=0;i<k;i++){
         srand (hash_type + i);
         //Create vector s_vectors
