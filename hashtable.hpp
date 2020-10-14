@@ -44,7 +44,7 @@ Hashtable::Hashtable(int size,int hash_type,int k,int w,int r,int d)
         //Create vector s_vectors
         for (int j = 0; j < d; j++)
         {
-            this->s_vectors[i].push_back(rand() % (w-1) + 0);
+            this->s_vectors[i][j] = rand() % (w-1) + 0;
         }
     }
     
