@@ -24,6 +24,8 @@ public:
     ~BinaryHyperCube();
     int f(int );
     int h(vector<double> &,int );
+    int get_number_from_bits(vector<int>);
+    int hamming_distance(int ,int );
 };
 
 BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector,int k,int M,int probes,int R)
@@ -61,9 +63,11 @@ BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector,int k,int M
             int h_result = this->h(data_vector[i],j);
             f_results.push_back(this->f(h_result));
         }
-        //Na sindiasoume kapos ta 0 kai 1 pou exoume sto vector gia
-        //na evroume to index sto hypercube(p.x f_results = [0,1,1]=>index sto hypercube = 3)
-        int hyper_cube_index;
+        //Na sindiasoume ta 0 kai 1 pou exoume sto vector gia na evroume
+        //to index sto hypercube(p.x f_results = [0,1,1]=>index sto hypercube = 3)
+        int hyper_cube_index = this->get_number_from_bits(f_results);
+        this->hyper_cube[hyper_cube_index].push_back(i);    //Insert the index of the img in the hypercube
+        f_results.clear();  //Clear the f_results vector for the next image
     }
     
 }
@@ -87,13 +91,81 @@ int BinaryHyperCube::h(vector<double> &image,int index){
         hash_result+=(a[d] * m) % M;
         m = m*m;
     }
-    hash_result = hash % M;
+    hash_result = hash_result % M;
     return hash_result;
 }
 
 //Kapos prepi na metatrepi ena hash result se 0 i 1
+//Eskeftika an to hash_result otan to spasoume se bit
+//exi parapano 1 bits pu 0 bits na epistrefi 1 allios 0
 int BinaryHyperCube::f(int hash_result){
-    return 0;
+    int one_count = 0;
+    int zero_count = 0;
+    //Get the bits of hash result
+    int k;
+    for(k=0; k<32; k++){
+        int mask =  1 << k;
+        int masked_n = hash_result & mask;
+        int thebit = masked_n >> k;
+        if (thebit==1)
+        {
+            one_count++;
+        }else
+        {
+            zero_count++;
+        }        
+    }
+    if (one_count >= zero_count)
+    {
+        return 1;
+    }else
+    {
+        return 0;
+    } 
+}
+
+//Given a vector of bits return the number they represent
+int BinaryHyperCube::get_number_from_bits(vector<int>bits){
+    int number = 0;
+    for (int i = bits.size()-1; i >= 0; i--)
+    {
+        if(bits[i]==1){
+            number+=pow(2,bits.size()-1-i);
+        }
+    }
+    return number;
+}
+
+//Get the hamming distance of two ints
+int BinaryHyperCube::hamming_distance(int a,int b){
+    int a_bits[32];
+    int b_bits[32];
+    //Get a bits
+    int k;
+    for(k=0; k<32; k++){
+        int mask =  1 << k;
+        int masked_n = a & mask;
+        int thebit = masked_n >> k;
+        a_bits[k] = thebit;
+    }
+    //Get b_bits
+    for(k=0; k<32; k++){
+        int mask =  1 << k;
+        int masked_n = b & mask;
+        int thebit = masked_n >> k;
+        b_bits[k] = thebit;
+    }
+    //Get hamming distance
+    int hamming_distance = 0;
+    for (int i = 0; i < 32; i++)
+    {
+        if (a_bits[i]!=b_bits[i])
+        {
+            hamming_distance++;
+        }
+        
+    }
+    return hamming_distance;
 }
 
 BinaryHyperCube::~BinaryHyperCube()
