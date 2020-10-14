@@ -1,34 +1,38 @@
 #ifndef BINARY_HYPER_CUBE_H
 #define BINARY_HYPER_CUBE_H
-#include<iostream>
-#include"hashtable.hpp"
-#include"metrics.hpp"
-#include<time.h>
-#include<math.h>
+#include <iostream>
+#include "hashtable.hpp"
+#include "metrics.hpp"
+#include <time.h>
+#include <math.h>
 
 using namespace std;
 
 class BinaryHyperCube
 {
 private:
-    vector<vector<double>> data;    //image training  dataset
+    vector<vector<double>> data; //image training  dataset
     vector<vector<int>> hyper_cube;
     vector<vector<int>> s_vectors;
-    int d;  //d' apo diafanies
+    int d; //d' apo diafanies
     int M;
     int probes;
     int R;
 
 public:
-    BinaryHyperCube(vector<vector<double>> &data_vector,int k,int M,int probes,int R);
+    BinaryHyperCube(vector<vector<double>> &data_vector, int k, int M, int probes, int R);
     ~BinaryHyperCube();
-    int f(int );
-    int h(vector<double> &,int );
+    int f(int);
+    int h(vector<double> &, int);
     int get_number_from_bits(vector<int>);
-    int hamming_distance(int ,int );
+    int hamming_distance(int, int);
+    vector<pair<int, int>> knn(vector<double> q, int img_index, int k); //Approximate
+    vector<int> range_search(vector<double> q, int img_index, double r, int c);
+    vector<pair<int, int>> exact_nearest_neighbor(vector<double> q, int k);
+    vector<int> get_bucket_imgs(int bucket_index);
 };
 
-BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector,int k,int M,int probes,int R)
+BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector, int k, int M, int probes, int R)
 {
     this->data = data_vector;
     this->d = k;
@@ -37,7 +41,7 @@ BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector,int k,int M
     this->R = R;
 
     //Resize s_vectors
-    this->s_vectors.resize(this->d,vector<int>(data_vector[0].size()));
+    this->s_vectors.resize(this->d, vector<int>(data_vector[0].size()));
 
     //Initialize s_vectors
     for (int i = 0; i < k; i++)
@@ -45,51 +49,51 @@ BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector,int k,int M
         srand(i);
         for (int j = 0; j < data_vector[0].size(); j++)
         {
-            this->s_vectors[i][j] = rand() % (40000-1) + 0;     //To 40000 jame kapos prepi na en metavliti kalitera
+            this->s_vectors[i][j] = rand() % (40000 - 1) + 0; //To 40000 jame kapos prepi na en metavliti kalitera
         }
     }
 
     //Initialize the hypercube
-    this->hyper_cube.resize(pow(2,this->d),vector<int>(0));
-    
+    this->hyper_cube.resize(pow(2, this->d), vector<int>(0));
+
     //Create a vector to store f function results
-    vector<int> f_results;  //Contains only 0 and 1
+    vector<int> f_results; //Contains only 0 and 1
     //Insert the data in the hypercube
     for (int i = 0; i < data_vector.size(); i++)
     {
         //Compute f results
         for (int j = 0; j < this->d; j++)
         {
-            int h_result = this->h(data_vector[i],j);
+            int h_result = this->h(data_vector[i], j);
             f_results.push_back(this->f(h_result));
         }
         //Na sindiasoume ta 0 kai 1 pou exoume sto vector gia na evroume
         //to index sto hypercube(p.x f_results = [0,1,1]=>index sto hypercube = 3)
         int hyper_cube_index = this->get_number_from_bits(f_results);
-        this->hyper_cube[hyper_cube_index].push_back(i);    //Insert the index of the img in the hypercube
-        f_results.clear();  //Clear the f_results vector for the next image
+        this->hyper_cube[hyper_cube_index].push_back(i); //Insert the index of the img in the hypercube
+        f_results.clear();                               //Clear the f_results vector for the next image
     }
-    
 }
 
-int BinaryHyperCube::h(vector<double> &image,int index){
+int BinaryHyperCube::h(vector<double> &image, int index)
+{
     vector<int> a;
     unsigned int hash_result;
 
     //Calculate a vector
     for (int i = 0; i < this->s_vectors[index].size(); i++)
     {
-        double temp_a = double(image[i]-s_vectors[index][i])/double(40000);
-        a.push_back(int(round(temp_a)));  
+        double temp_a = double(image[i] - s_vectors[index][i]) / double(40000);
+        a.push_back(int(round(temp_a)));
     }
     //Calculate h(image)
-    int m = pow (2,32-3);     
-    int M = pow (2, 32/4);      //to 4(=k) kalitera na en kapou san metavliti
-    hash_result = a[a.size()-1] % M;
-    for (int d = a.size()-2; d >= 0; d--)
+    int m = pow(2, 32 - 3);
+    int M = pow(2, 32 / 4); //to 4(=k) kalitera na en kapou san metavliti
+    hash_result = a[a.size() - 1] % M;
+    for (int d = a.size() - 2; d >= 0; d--)
     {
-        hash_result+=(a[d] * m) % M;
-        m = m*m;
+        hash_result += (a[d] * m) % M;
+        m = m * m;
     }
     hash_result = hash_result % M;
     return hash_result;
@@ -98,59 +102,68 @@ int BinaryHyperCube::h(vector<double> &image,int index){
 //Kapos prepi na metatrepi ena hash result se 0 i 1
 //Eskeftika an to hash_result otan to spasoume se bit
 //exi parapano 1 bits pu 0 bits na epistrefi 1 allios 0
-int BinaryHyperCube::f(int hash_result){
+int BinaryHyperCube::f(int hash_result)
+{
     int one_count = 0;
     int zero_count = 0;
     //Get the bits of hash result
     int k;
-    for(k=0; k<32; k++){
-        int mask =  1 << k;
+    for (k = 0; k < 32; k++)
+    {
+        int mask = 1 << k;
         int masked_n = hash_result & mask;
         int thebit = masked_n >> k;
-        if (thebit==1)
+        if (thebit == 1)
         {
             one_count++;
-        }else
+        }
+        else
         {
             zero_count++;
-        }        
+        }
     }
     if (one_count >= zero_count)
     {
         return 1;
-    }else
+    }
+    else
     {
         return 0;
-    } 
+    }
 }
 
 //Given a vector of bits return the number they represent
-int BinaryHyperCube::get_number_from_bits(vector<int>bits){
+int BinaryHyperCube::get_number_from_bits(vector<int> bits)
+{
     int number = 0;
-    for (int i = bits.size()-1; i >= 0; i--)
+    for (int i = bits.size() - 1; i >= 0; i--)
     {
-        if(bits[i]==1){
-            number+=pow(2,bits.size()-1-i);
+        if (bits[i] == 1)
+        {
+            number += pow(2, bits.size() - 1 - i);
         }
     }
     return number;
 }
 
 //Get the hamming distance of two ints
-int BinaryHyperCube::hamming_distance(int a,int b){
+int BinaryHyperCube::hamming_distance(int a, int b)
+{
     int a_bits[32];
     int b_bits[32];
     //Get a bits
     int k;
-    for(k=0; k<32; k++){
-        int mask =  1 << k;
+    for (k = 0; k < 32; k++)
+    {
+        int mask = 1 << k;
         int masked_n = a & mask;
         int thebit = masked_n >> k;
         a_bits[k] = thebit;
     }
     //Get b_bits
-    for(k=0; k<32; k++){
-        int mask =  1 << k;
+    for (k = 0; k < 32; k++)
+    {
+        int mask = 1 << k;
         int masked_n = b & mask;
         int thebit = masked_n >> k;
         b_bits[k] = thebit;
@@ -159,18 +172,110 @@ int BinaryHyperCube::hamming_distance(int a,int b){
     int hamming_distance = 0;
     for (int i = 0; i < 32; i++)
     {
-        if (a_bits[i]!=b_bits[i])
+        if (a_bits[i] != b_bits[i])
         {
             hamming_distance++;
         }
-        
     }
     return hamming_distance;
 }
 
+vector<pair<int, int>> BinaryHyperCube::knn(vector<double> q, int img_index, int k)
+{
+    Metrics metrics = Metrics();
+    //Create a map where we hold the distances from the closest images from each Hashtable
+    unordered_map<int, int> img_distances;
+    vector<pair<int, int>> distances; //A vector of pairs(img_index,img_distance from q)
+
+    //Go through each Hashtable
+    for (int i = 0; i < this->M; i++)
+    {
+
+        vector<int> f_results; //Contains only 0 and 1
+
+        //Compute f for query
+        for (int j = 0; j < this->d; j++)
+        {
+            int h_result = this->h(q, j);
+            f_results.push_back(this->f(h_result));
+        }
+        //Na sindiasoume ta 0 kai 1 pou exoume sto vector gia na evroume
+        //to index sto hypercube(p.x f_results = [0,1,1]=>index sto hypercube = 3)
+        int hyper_cube_index = this->get_number_from_bits(f_results);
+        f_results.clear(); //Clear the f_results vector for the next image
+
+        //Get the image indexes that are in bucket hash index from hashtable i
+        vector<int> img_indexes = this->get_bucket_imgs(hyper_cube_index);
+        //Caluclate the distances from the images and save them in a new vector
+        vector<pair<int, int>> temp_distances; //Pair is the index of the image and it's distance from q
+       
+       
+        // na gini hamming distance
+        for (int j = 0; j < img_indexes.size(); j++)
+        {
+            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]], q, (char *)"L1");
+            temp_distances.push_back(make_pair(img_indexes[j], manhattan_dist));
+        }
+
+
+
+
+
+        //Sort temp distances based on the distance
+        sort(temp_distances.begin(), temp_distances.end(), sortbysec);
+        //Add the k pairs (image_index,distance from q) in the map
+        for (int j = 0; j < temp_distances.size(); j++)
+        {
+            if (j >= k)
+            {
+                break;
+            }
+            img_distances.insert(temp_distances[j]);
+        }
+    }
+    //Print the map to see if it works
+    //for (auto& x: img_distances)
+    //    std::cout << x.first << ": " << x.second << std::endl;
+
+    //Insert the pairs from img_distances in a vector,sort it and return the k first indexes.
+    for (auto &x : img_distances)
+    {
+        distances.push_back(make_pair(x.first, x.second));
+    }
+    //Sort the vector
+    sort(distances.begin(), distances.end(), sortbysec);
+    //Create a new vector to return the results
+    vector<pair<int, int>> results;
+    for (int i = 0; i < distances.size(); i++)
+    {
+        if (i >= k)
+        {
+            break;
+        }
+        results.push_back(distances[i]);
+    }
+
+    return results;
+}
+
+vector<int> BinaryHyperCube::range_search(vector<double> q, int img_index, double r, int c = 1)
+{
+  
+}
+
+vector<pair<int, int>> BinaryHyperCube::exact_nearest_neighbor(vector<double> q, int k)
+{
+  
+}
+
+//Returns the vector with the images indexes that are in bucket "bucket index"
+vector<int> BinaryHyperCube::get_bucket_imgs(int bucket_index){
+    return this->hyper_cube[bucket_index];
+}
+
+
 BinaryHyperCube::~BinaryHyperCube()
 {
 }
-
 
 #endif
