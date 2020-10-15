@@ -308,7 +308,28 @@ vector<int> BinaryHyperCube::range_search(vector<double> q, int img_index, doubl
 
 vector<pair<int, int>> BinaryHyperCube::exact_nearest_neighbor(vector<double> q, int k)
 {
-  
+    Metrics metrics = Metrics();
+    vector<pair<int,int>> results;
+    vector<pair<int,int>> distances;
+
+    //Calculate the distances from all the images and insert them in a vector
+    for (int i = 0; i < this->data.size(); i++)
+    {
+        int distance = metrics.get_distance(this->data[i],q,(char *)"L1");
+        distances.push_back(make_pair(i,distance));
+    }
+    //Sort the distances vector
+    sort(distances.begin(),distances.end(), sortbysec);
+    //Insert the first k values in results vector and return it
+    for (int i = 0; i < this->data.size(); i++)
+    {
+        if (i >= k)
+        {
+            break;
+        }
+        results.push_back(distances[i]);
+    }
+    return results;  
 }
 
 //Returns the vector with the images indexes that are in bucket "bucket index"
