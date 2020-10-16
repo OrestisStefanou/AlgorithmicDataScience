@@ -186,7 +186,7 @@ vector<pair<int, int>> BinaryHyperCube::knn(vector<double> q, int img_index, int
     //Create a map where we hold the distances from the closest images from each Hashtable
     unordered_map<int, int> img_distances;
     vector<pair<int, int>> distances; //A vector of pairs(img_index,img_distance from q)
-
+    int probes_counter = 0;
     //Calculate hypercube vertex of query image
     vector<int> f_results; //Contains only 0 and 1
     //Compute f results
@@ -198,34 +198,30 @@ vector<pair<int, int>> BinaryHyperCube::knn(vector<double> q, int img_index, int
     int hyper_cube_index = this->get_number_from_bits(f_results);   //hypercube vertex
     //Get the index of images from this vertex
     vector<int> img_indexes = this->get_bucket_imgs(hyper_cube_index);
-    //Check the first M images from this vertex
+    //Check the images from this vertex
     vector<pair<int,int>> temp_distances;
     for (int i = 0; i < img_indexes.size(); i++)
     {
-        if (i > this->M)
-        {
-            break;
-        }
         int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
         img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
     }
     img_indexes.clear();
-    //Check nearby vertices that have hamming distance with hypercube index <= probes
+    //Check nearby vertices that have hamming distance with hypercube index <= M
     for (int i = 0; i < this->hyper_cube.size(); i++)   //Logika iparxi kaliteros tropos para na ta elegxo ola
-    {
-        if ( (i!=hyper_cube_index) && (this->hamming_distance(i,hyper_cube_index)<=this->probes) )
+    {   
+        if(probes_counter >= this->probes){
+            break;
+        }
+        if ( (i!=hyper_cube_index) && (this->hamming_distance(i,hyper_cube_index)<=this->M) )
         {
             img_indexes = this->get_bucket_imgs(i);
             for (int i = 0; i < img_indexes.size(); i++)
             {
-                if (i > this->M)
-                {
-                    break;
-                }
                 int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
                 img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
             }
             img_indexes.clear();
+            probes_counter++;
         }
     }
     //Insert the pairs from img_distances in a vector,sort it and return the k first indexes.
@@ -254,7 +250,7 @@ vector<int> BinaryHyperCube::range_search(vector<double> q, int img_index, doubl
     //Create a map where we hold the distances from the closest images from each Hashtable
     unordered_map<int, int> img_distances;
     vector<pair<int, int>> distances; //A vector of pairs(img_index,img_distance from q)
-
+    int probes_counter = 0;
     //Calculate hypercube vertex of query image
     vector<int> f_results; //Contains only 0 and 1
     //Compute f results
@@ -266,31 +262,26 @@ vector<int> BinaryHyperCube::range_search(vector<double> q, int img_index, doubl
     int hyper_cube_index = this->get_number_from_bits(f_results);   //hypercube vertex
     //Get the index of images from this vertex
     vector<int> img_indexes = this->get_bucket_imgs(hyper_cube_index);
-    //Check the first M images from this vertex
+    //Check the images from this vertex
     vector<pair<int,int>> temp_distances;
     for (int i = 0; i < img_indexes.size(); i++)
     {
-        if (i > this->M)
-        {
-            break;
-        }
         int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
         if(manhattan_dist < c*r)
             img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
     }
     img_indexes.clear();
-    //Check nearby vertices that have hamming distance with hypercube index <= probes
+    //Check nearby vertices that have hamming distance with hypercube index <= M
     for (int i = 0; i < this->hyper_cube.size(); i++)   //Logika iparxi kaliteros tropos para na ta elegxo ola
     {
+        if(probes_counter >= this->probes){
+            break;
+        }
         if ( (i!=hyper_cube_index) && (this->hamming_distance(i,hyper_cube_index)<=this->probes) )
         {
             img_indexes = this->get_bucket_imgs(i);
             for (int i = 0; i < img_indexes.size(); i++)
             {
-                if (i > this->M)
-                {
-                    break;
-                }
                 int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
                 if(manhattan_dist < c*r)
                     img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
