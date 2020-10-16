@@ -38,6 +38,11 @@ Metrics::~Metrics()
 int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
     int distance = 0;
 
+    if(a.size()!=b.size()){
+        cout << "Size of two vectors is not the same" << endl;
+        return -1;
+    }
+
     if(strcmp((char *)"L1",type)==0){
         for (int i = 0; i < a.size(); i++)
         {
