@@ -15,15 +15,16 @@
 #define CLUSTER 1
 using namespace std;
 
-
-double get_max(double a,double b){
-    if(a>b){
+double get_max(double a, double b)
+{
+    if (a > b)
+    {
         return a;
-    }else
+    }
+    else
     {
         return b;
     }
-    
 }
 
 class Clustering
@@ -34,9 +35,9 @@ private:
 public:
     Clustering(vector<vector<double>> &);
     ~Clustering();
-    pair<vector<vector<int>>,vector<vector<double>>> loyds(int k);
+    pair<vector<vector<int>>, vector<vector<double>>> loyds(int k);
     vector<vector<int>> lsh(int k, int L, int KforLSH);
-    vector<vector<double>> silhouette_score(vector<vector<int>>clusters,vector<vector<double>>centroids);
+    vector<vector<double>> silhouette_score(vector<vector<int>> clusters, vector<vector<double>> centroids);
 };
 
 Clustering::Clustering(vector<vector<double>> &data_vector)
@@ -45,7 +46,7 @@ Clustering::Clustering(vector<vector<double>> &data_vector)
 }
 
 //Return a vector with the cluster that each image belongs
-pair<vector<vector<int>>,vector<vector<double>>> Clustering::loyds(int k)
+pair<vector<vector<int>>, vector<vector<double>>> Clustering::loyds(int k)
 {
     Metrics metrics = Metrics();
     vector<vector<int>> clusters; //clusters[0]->vector with image numbers that belong to cluster 0
@@ -131,9 +132,8 @@ pair<vector<vector<int>>,vector<vector<double>>> Clustering::loyds(int k)
             }
         }
     }
-    return make_pair(clusters,centroids);
+    return make_pair(clusters, centroids);
 }
-
 
 vector<vector<int>> Clustering::lsh(int k, int L, int KforLSH)
 {
@@ -178,12 +178,12 @@ vector<vector<int>> Clustering::lsh(int k, int L, int KforLSH)
     //Initialize vector with zeros
     //O pinakas exi diastasis data.size*2
     //Stin proti stili mpeni to flag(0 h 1) an exi xrisimopoithi i ikona kai stin deuteri stili mpeni o arithmos tou cluster opou aniki
-    vector<vector<int>> AssignedPoints(2, vector<int>(this->data.size(), 0));
+    vector<vector<int>> AssignedPoints(this->data.size(), vector<int>(2, 0));
 
     //LSH Initialization
     LSH lsh = LSH(KforLSH, L, this->data, R);
 
-    int r=R;
+    int r = R;
     for (int m = 0; m < 10; m++)
     {
 
@@ -234,25 +234,113 @@ vector<vector<int>> Clustering::lsh(int k, int L, int KforLSH)
                 }
             }
         }
-
-        return clusters;
-        r=r*2;
+        r = r * 2;
     }
+
+    //Update the centroids
+    for (int i = 0; i < k; i++) //Number of centroids
+    {
+        for (int c = 0; c < this->data[clusters[i][0]].size(); c++) //Get each column from the images in the cluster
+        {
+            double sum = 0.0;
+            for (int r = 0; r < clusters[i].size(); r++) //Get each row from the images in the cluster
+            {
+                sum += this->data[clusters[i][r]][c]; //Sum their data
+            }
+            //Calculate the mean
+            double mean = sum / clusters[i].size();
+            //Update the centroid column
+            new_centroids[i][c] = mean;
+        }
+    }
+
+    //Find how different are the new_centroids from the old ones
+    for (int i = 0; i < k; i++)
+    {
+        for (int j = 0; j < centroids[i].size(); j++)
+        {
+            centroids_difference += abs(new_centroids[i][j] - centroids[i][j]);
+            centroids[i][j] = new_centroids[i][j]; //Update centroids to new_centroids for the next iteration
+        }
+    }
+    while (1)
+    {
+        if (centroids_difference < 1000.0 && centroids_difference >= 0.0)
+        {
+            break;
+        }
+        centroids_difference = 0.0;
+        //Initialize the clusters
+        for (int i = 0; i < k; i++)
+        {
+            if (clusters[i].size() > 0)
+            {
+                clusters[i].clear();
+            }
+        }
+        clusters.resize(k, vector<int>(0));
+        //Assign the data to the clusters
+        for (int i = 0; i < this->data.size(); i++)
+        {
+            //Compute the distance from each cluster
+            vector<pair<int, int>> distances; //A pair with cluster number and distance
+            for (int j = 0; j < k; j++)
+            {
+                int manhattan_dist = metrics.get_distance(this->data[i], centroids[j], (char *)"L1");
+                distances.push_back(make_pair(j, manhattan_dist));
+            }
+            //Sort distances vector
+            sort(distances.begin(), distances.end(), sortbysec);
+            //Assign the closest cluster to the image
+            clusters[distances[0].first].push_back(i);
+        }
+
+        //Update the centroids
+        for (int i = 0; i < k; i++) //Number of centroids
+        {
+            for (int c = 0; c < this->data[clusters[i][0]].size(); c++) //Get each column from the images in the cluster
+            {
+                double sum = 0.0;
+                for (int r = 0; r < clusters[i].size(); r++) //Get each row from the images in the cluster
+                {
+                    sum += this->data[clusters[i][r]][c]; //Sum their data
+                }
+                //Calculate the mean
+                double mean = sum / clusters[i].size();
+                //Update the centroid column
+                new_centroids[i][c] = mean;
+            }
+        }
+
+        //Find how different are the new_centroids from the old ones
+        for (int i = 0; i < k; i++)
+        {
+            for (int j = 0; j < centroids[i].size(); j++)
+            {
+                centroids_difference += abs(new_centroids[i][j] - centroids[i][j]);
+                centroids[i][j] = new_centroids[i][j]; //Update centroids to new_centroids for the next iteration
+            }
+        }
+    }
+    return clusters;
 }
 
-vector<vector<double>>Clustering::silhouette_score(vector<vector<int>>clusters,vector<vector<double>>centroids){
-    vector<vector<double>>scores;
-    vector<double>a,b;   //Apo diafanies slide 54
-    
-    scores.resize(clusters.size(),vector<double>(0));
+vector<vector<double>> Clustering::silhouette_score(vector<vector<int>> clusters, vector<vector<double>> centroids)
+{
+    vector<vector<double>> scores;
+    vector<double> a, b; //Apo diafanies slide 54
+
+    scores.resize(clusters.size(), vector<double>(0));
 
     Metrics metrics = Metrics();
 
     //Calcuate the silhouette score of each image in each cluster
     for (int i = 0; i < clusters.size(); i++)
     {
-        if(a.size() > 0)    a.clear();
-        if(b.size() > 0)    b.clear();
+        if (a.size() > 0)
+            a.clear();
+        if (b.size() > 0)
+            b.clear();
         for (int j = 0; j < clusters[i].size(); j++)
         {
             //Calculate a vector
@@ -260,31 +348,31 @@ vector<vector<double>>Clustering::silhouette_score(vector<vector<int>>clusters,v
             //Calculate average distance of j image to images in the same cluster
             for (int z = 0; z < clusters[i].size(); z++)
             {
-                sum+=metrics.get_distance(this->data[clusters[i][j]],this->data[clusters[i][z]],(char *)"L1");
+                sum += metrics.get_distance(this->data[clusters[i][j]], this->data[clusters[i][z]], (char *)"L1");
             }
-            a.push_back(double(sum/clusters[i].size()));
+            a.push_back(double(sum / clusters[i].size()));
             //Find 2nd closest centroid
-            vector<pair<int,int>>distances;
+            vector<pair<int, int>> distances;
             for (int k = 0; k < centroids.size(); k++)
             {
-                int manhattan_dist = metrics.get_distance(this->data[clusters[i][j]],centroids[k],(char *)"L1");
-                distances.push_back(make_pair(k,manhattan_dist));
+                int manhattan_dist = metrics.get_distance(this->data[clusters[i][j]], centroids[k], (char *)"L1");
+                distances.push_back(make_pair(k, manhattan_dist));
             }
             //Sort distances
-            sort(distances.begin(),distances.end(), sortbysec);
+            sort(distances.begin(), distances.end(), sortbysec);
             int second_best = distances[1].first;
             ////Calculate average distance of j image to images in the second best cluster(b vector)
             sum = 0;
-            for (int  z = 0; z < clusters[second_best].size(); z++)
+            for (int z = 0; z < clusters[second_best].size(); z++)
             {
-               sum+=metrics.get_distance(this->data[clusters[i][j]],this->data[clusters[second_best][z]],(char *)"L1"); 
+                sum += metrics.get_distance(this->data[clusters[i][j]], this->data[clusters[second_best][z]], (char *)"L1");
             }
-            b.push_back(double(sum/clusters[i].size()));            
+            b.push_back(double(sum / clusters[i].size()));
         }
         //Calculate s vector
         for (int j = 0; j < a.size(); j++)
         {
-            scores[i].push_back((b[j]-a[j])/get_max(a[j],b[j]));
+            scores[i].push_back((b[j] - a[j]) / get_max(a[j], b[j]));
         }
     }
     return scores;
