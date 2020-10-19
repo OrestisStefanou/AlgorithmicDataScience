@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<time.h>
 
 using namespace std;
 
@@ -18,6 +19,7 @@ int main(int argc, char const *argv[])
 
     char input_file[250],output_file[250],conf_file[250];
     char method[50];
+    bool complete_flag = false;
 
     if(argc == 10){
         //Parse the command line arguments
@@ -69,6 +71,10 @@ int main(int argc, char const *argv[])
                     print_help();
                     exit(1);
                 } 
+            }
+
+            if(strcmp(argv[i],"-complete")==0){
+                complete_flag = true; 
             }
         }
     }else   //Read the filepaths from the user
@@ -141,11 +147,57 @@ int main(int argc, char const *argv[])
         }
     }
     fclose(fp);
-    cout << "Number of clusters:" << K << endl;
+    /*cout << "Number of clusters:" << K << endl;
     cout << "number_of_vector_hash_tables:" << L << endl;
     cout << "number_of_vector_hash_functions:" << number_of_vector_hash_functions << endl;
     cout << "max_number_M_hypercube:" << max_number_M_hypercube << endl;
     cout << "number_of_hypercube_dimensions:" << number_of_hypercube_dimensions << endl;
-    cout << "number of probes:" << number_of_probes << endl;
+    cout << "number of probes:" << number_of_probes << endl;*/
+
+    //Read the training dataset
+    vector<vector<double>> training_data;
+    if(ReadData(training_data,(char *)input_file)){
+        exit(1);
+    }
+    Clustering cluster = Clustering(training_data);
+    time_t start,end;
+    pair<vector<vector<int>>,vector<vector<double>>> results;
+    time(&start);
+    if(strcmp(method,"Lloyds")==0)
+        results = cluster.loyds(10);
+    time(&end); 
+    vector<vector<double>> scores = cluster.silhouette_score(results.first,results.second);
+
+    //Write the output to the output file
+    ofstream outfile;
+    outfile.open(output_file);  //Create the output file
+
+    outfile << "Algorithm:" << method << "\n";
+    for (int i = 0; i < results.first.size(); i++)
+    {
+        outfile << "CLUSTER-" << i+1 << " {size:" << results.first[i].size() ;
+        outfile << ",centroid:" ;
+        for (int j = 0; j < results.second[i].size(); j++)
+        {
+            outfile << results.second[i][j] << "  ";
+        }
+        outfile << "}";
+    }
+    double clustering_time = difftime(end,start);
+    outfile << "Clustering time:" << clustering_time << "\n";
+
+    if(complete_flag){
+        for (int i = 0; i < results.first.size(); i++)
+        {
+            outfile << "CLUSTER-" << i+1 << " {";
+            for (int j = 0; j < results.first[i].size(); j++)
+            {
+                outfile << "," << results.first[i][j];
+            }
+            outfile << "\n";
+        }
+        
+    }
+    outfile.close();
     return 0;
 }
