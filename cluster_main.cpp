@@ -164,7 +164,15 @@ int main(int argc, char const *argv[])
     pair<vector<vector<int>>,vector<vector<double>>> results;
     time(&start);
     if(strcmp(method,"Lloyds")==0)
-        results = cluster.loyds(10);
+        results = cluster.loyds(K);
+    else if(strcmp(method,"Range Search LSH")==0)
+        results = cluster.lsh(K,L,number_of_vector_hash_functions);
+    else if(strcmp(method,"Range Search Hypercube")==0)
+        results = cluster.hypercube(K,number_of_hypercube_dimensions,max_number_M_hypercube,number_of_probes);
+    else{
+        cout << "Wrong method given\n";
+        exit(1);
+    }
     time(&end); 
     vector<vector<double>> scores = cluster.silhouette_score(results.first,results.second);
 
