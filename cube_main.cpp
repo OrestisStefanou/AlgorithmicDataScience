@@ -180,20 +180,19 @@ int main(int argc, char const *argv[])
     ofstream outfile;
     outfile.open(output_file); //Create the outpout file
 
-
     for (int i = 0; i < 10; i++)
     {
         //Find the approximate N nearest neighbors
-        time_t start, end;
-        time(&start);
+        clock_t start, end;
+        start = clock();
         vector<pair<int, int>> appr_results = BhyperCube.knn(query_data[i], i, N);
-        time(&end);
-        double appr_knn_time = difftime(end, start);
+        end = clock();
+        double appr_knn_time = double(end - start) / double(CLOCKS_PER_SEC);
         //Find the exact nearest neighbors
-        time(&start);
+        start = clock();
         vector<pair<int, int>> exact_results = BhyperCube.exact_nearest_neighbor(query_data[i], N);
-        time(&end);
-        double exact_knn_time = difftime(end, start);
+        end = clock();
+        double exact_knn_time = double(end - start) / double(CLOCKS_PER_SEC);
         //Do the range search
         vector<int> range_results = BhyperCube.range_search(query_data[i], i, R);
         //Write the results in the output file
