@@ -11,13 +11,13 @@ class Hashtable
 {
 private:
     vector<int> *hashtable;     //Hashtable me ta index ton ikonon.Pinakas me vectors(buckets)
-    int hash_type;            //To int en tixeo,theloume kati pu tha kamni diaforetiki hashfunction gia kathe Hashtable
+    int sRandInit;            //To int en tixeo,theloume kati pu tha kamni diaforetiki hashfunction gia kathe Hashtable
     int table_size;
     int K;
     int w;
     vector<vector<int>> s_vectors;          //To dianisma s apo diafania 19
 public:
-    Hashtable(int size,int hash_type,int k,int w,int r,int d);
+    Hashtable(int size,int sRandInit,int k,int w,int r,int d);
     int hash_function(vector<double> &image,int testing);
     void insert(vector<double> &image,int image_index);
     vector<int> get_bucket_imgs(int bucket_index);
@@ -25,13 +25,13 @@ public:
     ~Hashtable();
 };
 
-//To hash_type ine apla gia ton random seed generator
+//To sRandInit ine apla gia ton random seed generator
 //To size ine to size tou Hashtable
 //To k,w,r,d ine pu tis diafanies(sel.19)
-Hashtable::Hashtable(int size,int hash_type,int k,int w,int r,int d)
+Hashtable::Hashtable(int size,int sRandInit,int k,int w,int r,int d)
 {
     this->hashtable = new vector<int>[size];
-    this->hash_type = hash_type;
+    this->sRandInit = sRandInit;
     this->table_size = size;
     this->K = k;
     this->w = w;
@@ -40,7 +40,7 @@ Hashtable::Hashtable(int size,int hash_type,int k,int w,int r,int d)
     this->s_vectors.resize(k,vector<int>(d));   //Resize the vector to fit the data
 
     for(int i=0;i<k;i++){
-        srand (hash_type + i);
+        srand (sRandInit + i);
         //Create vector s_vectors
         for (int j = 0; j < d; j++)
         {
