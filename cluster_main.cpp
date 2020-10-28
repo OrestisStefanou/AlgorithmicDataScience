@@ -10,7 +10,7 @@ using namespace std;
 void print_help()
 {
     cout << "Usage is:" << endl;
-    cout << "./cluster –i <input file> –c <configuration file> -o <output file> -complete(optional) -m <method: Classic OR LSH or Hypercube>" << endl;
+    cout << "./cluster -i <input file> -c <configuration file> -o <output file> -complete(optional) -m <method: Lloyds OR LSH or Hypercube>" << endl;
 }
 
 int main(int argc, char const *argv[])
