@@ -10,7 +10,7 @@ using namespace std;
 void print_help()
 {
     cout << "Usage is:" << endl;
-    cout << "./cluster –i <input file> –c <configuration file> -o <output file> -complete <optional> -m <method: Classic OR LSH or Hypercube>" << endl;
+    cout << "./cluster –i <input file> –c <configuration file> -o <output file> -complete(optional) -m <method: Classic OR LSH or Hypercube>" << endl;
 }
 
 int main(int argc, char const *argv[])
@@ -93,10 +93,21 @@ int main(int argc, char const *argv[])
             }
         }
     }
-    else //Read the filepaths from the user
+    else //Print help and exit
     {
         print_help();
+        exit(1);
     }
+
+    /*cout << "Input file is:" << input_file << endl;
+    cout << "Conf file is:" << conf_file << endl;
+    cout << "Output file is:" << output_file << endl;
+    cout << "Complete flag is:" << complete_flag << endl;
+    cout << "Method is:" << method << endl;
+    cout << strcmp(method,"Lloyds") << endl;*/
+    char method_copy[100];
+    strcpy(method_copy,method);
+
     //Read the conf file
     FILE *fp = fopen(conf_file, "r");
     if (fp == NULL)
@@ -188,11 +199,13 @@ int main(int argc, char const *argv[])
     clock_t start, end;
     pair<vector<vector<int>>, vector<vector<double>>> results;
     start = clock();
-    if (strcmp(method, "Lloyds") == 0)
+    
+    if (strcmp(method_copy,"Lloyds") == 0){
         results = cluster.loyds(K);
-    else if (strcmp(method, "Range Search LSH") == 0)
+    }
+    else if (strcmp(method_copy, "LSH") == 0)
         results = cluster.lsh(K, L, number_of_vector_hash_functions);
-    else if (strcmp(method, "Range Search Hypercube") == 0)
+    else if (strcmp(method_copy, "Hypercube") == 0)
         results = cluster.hypercube(K, number_of_hypercube_dimensions, max_number_M_hypercube, number_of_probes);
     else
     {
@@ -201,7 +214,19 @@ int main(int argc, char const *argv[])
     }
     end = clock();
     vector<vector<double>> scores = cluster.silhouette_score(results.first, results.second);
-
+    vector<double>silhouete_scores;
+    double s_total = 0.0;
+    for (int i = 0; i < scores.size(); i++)
+    {
+        double sum = 0.0;
+        for (int j = 0; j < scores[i].size(); j++)
+        {
+            sum+= scores[i][j];
+        }
+        silhouete_scores.push_back(sum/scores[i].size());
+        s_total += sum/scores[i].size();
+    }
+    
     //Write the output to the output file
     ofstream outfile;
     outfile.open(output_file); //Create the output file
@@ -219,6 +244,13 @@ int main(int argc, char const *argv[])
     }
     double clustering_time = double(end - start) / double(CLOCKS_PER_SEC);
     outfile << "Clustering time:" << clustering_time << "\n";
+
+    outfile << "Silhouette:[";
+    for (int i = 0; i < silhouete_scores.size(); i++)
+    {
+        outfile << silhouete_scores[i] << " ";
+    }
+    outfile << s_total << " ]\n";
 
     if (complete_flag)
     {
