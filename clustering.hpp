@@ -173,9 +173,6 @@ pair<vector<vector<int>>, vector<vector<double>>> Clustering::lsh(int k, int L, 
     }
 
     //Mark assigned points
-    //en enas pinakas pou krata ena flag an i ikona empike se kapio cluster i oi.
-    //Ypaxri periptosi 1 ikona na pezete se 2(i je pio polla cluster) na mpi opote emis prepi
-    // na kseroume an idi aniki se ena opote na piasoume se jino pou eshi tin pio mikri apostasi(me manhatan apotastasi)
 
     //Initialize vector with zeros
     //O pinakas exi diastasis data.size*2
@@ -207,7 +204,7 @@ pair<vector<vector<int>>, vector<vector<double>>> Clustering::lsh(int k, int L, 
                     AssignedPoints[range_results[j]][CLUSTER] = i;
                     clusters[i].push_back(range_results[j]);
                 }
-                //an to simio ani se kapio cluster epilegoume to kontinotero cluster
+                //an to simio den aniki se kapio cluster epilegoume to kontinotero cluster
                 else
                 {
                     vector<pair<int, int>> distances; //A pair with cluster number and distance
@@ -224,7 +221,6 @@ pair<vector<vector<int>>, vector<vector<double>>> Clustering::lsh(int k, int L, 
                     //Sort distances vector
                     sort(distances.begin(), distances.end(), sortbysec);
                     //Assign the closest cluster to the image
-                    //An i ikona mpeni sto paron cluster fie tin pou to palio cluster je varti sto jenourko alios afistin jiame pou eni
                     if (distances[0].first == j)
                     {
                         //remove image from old cluster
@@ -363,10 +359,6 @@ pair<vector<vector<int>>, vector<vector<double>>>Clustering::hypercube(int k,int
     }
 
     //Mark assigned points
-    //en enas pinakas pou krata ena flag an i ikona empike se kapio cluster i oi.
-    //Ypaxri periptosi 1 ikona na pezete se 2(i je pio polla cluster) na mpi opote emis prepi
-    // na kseroume an idi aniki se ena opote na piasoume se jino pou eshi tin pio mikri apostasi(me manhatan apotastasi)
-
     //Initialize vector with zeros
     //O pinakas exi diastasis data.size*2
     //Stin proti stili mpeni to flag(0 h 1) an exi xrisimopoithi i ikona kai stin deuteri stili mpeni o arithmos tou cluster opou aniki
@@ -414,7 +406,6 @@ pair<vector<vector<int>>, vector<vector<double>>>Clustering::hypercube(int k,int
                     //Sort distances vector
                     sort(distances.begin(), distances.end(), sortbysec);
                     //Assign the closest cluster to the image
-                    //An i ikona mpeni sto paron cluster fie tin pou to palio cluster je varti sto jenourko alios afistin jiame pou eni
                     if (distances[0].first == j)
                     {
                         //remove image from old cluster

@@ -51,7 +51,7 @@ LSH::LSH(int k,int L,vector<vector<double>> &data_vector,int r)
     }
 }
 
-//Returns the index of the nearest neighbor of image q.To img_index en xriazete en apla gia testing
+//Returns the index of the nearest neighbor of image q
 pair<int,int> LSH::nearest_neighbor(vector<double> q,int img_index){
     Metrics metrics = Metrics();
     //Create a map where we hold the distances from the closest images from each Hashtable

@@ -11,7 +11,7 @@ class Hashtable
 {
 private:
     vector<int> *hashtable;     //Hashtable me ta index ton ikonon.Pinakas me vectors(buckets)
-    int sRandInit;            //To int en tixeo,theloume kati pu tha kamni diaforetiki hashfunction gia kathe Hashtable
+    int sRandInit;            
     int table_size;
     int K;
     int w;
@@ -27,7 +27,7 @@ public:
 
 //To sRandInit ine apla gia ton random seed generator
 //To size ine to size tou Hashtable
-//To k,w,r,d ine pu tis diafanies(sel.19)
+//To k,w,r,d ine apo tis diafanies(sel.19)
 Hashtable::Hashtable(int size,int sRandInit,int k,int w,int r,int d)
 {
     this->hashtable = new vector<int>[size];
@@ -50,7 +50,6 @@ Hashtable::Hashtable(int size,int sRandInit,int k,int w,int r,int d)
     
 }
 
-//Mia tixea hash function.To int testing en xriazete apla en gia tora
 int Hashtable::hash_function(vector<double> &image,int testing){
     vector<int>a;
     vector<unsigned int>hash_results;    //h1,h2,...,hk
@@ -63,22 +62,20 @@ int Hashtable::hash_function(vector<double> &image,int testing){
             a.push_back(int(round(temp_a)));
         }
         //Calculate h(image)
-        
-        int m = pow (2,32-3);     //TOUTO DAME PREPI NA ALLAKSI
-        int M = pow (2, 32/this->K);      //PREPI NA ALLAKSI
+        int m = pow (2,32-3);     
+        int M = pow (2, 32/this->K);      
         int hash = a[a.size()-1] % M;
         for (int d = a.size()-2; d >= 0; d--)
         {
             hash+=(a[d] * m) % M;
-            m = m*m;    //Overflow?
+            m = m*m;    
         }
         hash = hash % M;
         hash_results.push_back(hash);
     }
     //Concatenate the hash_results to one final result
     unsigned int final_hash=0;
-    //O tipos pu kamnoume concat ta hash results(pou to stack overflow pu estile o xamodrakas stis apories)
-    //unsigned int temp = (byte1) | (byte2 << 8) | (byte3 << 16) | (byte4 << 24);
+ 
     for (int i = 0; i < hash_results.size() ; i++)
     {
         final_hash = final_hash | hash_results[i] << i*8 ;

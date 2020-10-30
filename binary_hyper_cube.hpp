@@ -49,7 +49,7 @@ BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector, int k, int
         srand(i);
         for (int j = 0; j < data_vector[0].size(); j++)
         {
-            this->s_vectors[i][j] = rand() % (40000 - 1) + 0; //To 40000 jame kapos prepi na en metavliti kalitera
+            this->s_vectors[i][j] = rand() % (40000 - 1) + 0;
         }
     }
 
@@ -67,8 +67,7 @@ BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector, int k, int
             int h_result = this->h(data_vector[i], j);
             f_results.push_back(this->f(h_result));
         }
-        //Na sindiasoume ta 0 kai 1 pou exoume sto vector gia na evroume
-        //to index sto hypercube(p.x f_results = [0,1,1]=>index sto hypercube = 3)
+        
         int hyper_cube_index = this->get_number_from_bits(f_results);
         this->hyper_cube[hyper_cube_index].push_back(i); //Insert the index of the img in the hypercube
         f_results.clear();                               //Clear the f_results vector for the next image
@@ -88,7 +87,7 @@ int BinaryHyperCube::h(vector<double> &image, int index)
     }
     //Calculate h(image)
     int m = pow(2, 32 - 3);
-    int M = pow(2, 32 / 4); //to 4(=k) kalitera na en kapou san metavliti
+    int M = pow(2, 32 / 4); //to 4(=k)
     hash_result = a[a.size() - 1] % M;
     for (int d = a.size() - 2; d >= 0; d--)
     {
@@ -99,9 +98,7 @@ int BinaryHyperCube::h(vector<double> &image, int index)
     return hash_result;
 }
 
-//Kapos prepi na metatrepi ena hash result se 0 i 1
-//Eskeftika an to hash_result otan to spasoume se bit
-//exi parapano 1 bits pu 0 bits na epistrefi 1 allios 0
+//An exi parapano 1 bits apo 0 bits epistrefi 1 allios 0
 int BinaryHyperCube::f(int hash_result)
 {
     int one_count = 0;
@@ -207,7 +204,7 @@ vector<pair<int, int>> BinaryHyperCube::knn(vector<double> q, int img_index, int
     }
     img_indexes.clear();
     //Check nearby vertices that have hamming distance with hypercube index <= M
-    for (int i = 0; i < this->hyper_cube.size(); i++)   //Logika iparxi kaliteros tropos para na ta elegxo ola
+    for (int i = 0; i < this->hyper_cube.size(); i++)   
     {   
         if(probes_counter >= this->probes){
             break;
@@ -272,7 +269,7 @@ vector<int> BinaryHyperCube::range_search(vector<double> q, int img_index, doubl
     }
     img_indexes.clear();
     //Check nearby vertices that have hamming distance with hypercube index <= M
-    for (int i = 0; i < this->hyper_cube.size(); i++)   //Logika iparxi kaliteros tropos para na ta elegxo ola
+    for (int i = 0; i < this->hyper_cube.size(); i++)   
     {
         if(probes_counter >= this->probes){
             break;
