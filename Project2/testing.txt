@@ -1,0 +1,4 @@
+Test1:
+-train data size = 1000
+-test data size = 100
+-epochs = 35
