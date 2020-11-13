@@ -1,0 +1,44 @@
+Test2:
+-train data size = 60000
+-test data size = 10000
+-batch_size = 32
+-epochs = 2
+
+
+Epoch 2/2
+1500/1500 [==============================] - 500s 333ms/step - loss: 0.0038 - val_loss: 0.0042
+
+
+Test3:
+-train data size = 6000
+-test data size = 1000
+-batch_size = 64
+-epochs = 100
+
+Esvise to pc mou epie os to 34
+Epoch 34/100
+75/75 [==============================] - 69s 926ms/step - loss: 0.0027 - val_loss: 0.0033
+
+
+
+Test4:
+-train data size = 36000
+-test data size = 6000
+-batch_size = 64
+-epochs = 35
+
+epiren 1:30 je eklisato
+Epoch 13/35
+450/450 [==============================] - 343s 762ms/step - loss: 0.0019 - val_loss: 0.0024
+
+
+Test5:
+-train data size = 60000
+-test data size = 10000
+-batch_size = 512
+-epochs = 35
+
+
+Epoch 1/1
+94/94 [==============================] - 518s 6s/step - loss: 0.0634 - val_loss: 0.1051
+
