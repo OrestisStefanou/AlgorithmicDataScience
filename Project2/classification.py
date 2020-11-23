@@ -6,7 +6,7 @@ import keras
 from matplotlib import pyplot as plt
 import numpy as np
 import gzip
-# %matplotlib inline
+%matplotlib inline
 from keras.models import Model
 from keras.optimizers import RMSprop
 from keras.layers import Input,Dense,Flatten,Dropout,merge,Reshape,Conv2D,MaxPooling2D,UpSampling2D,Conv2DTranspose
@@ -156,7 +156,7 @@ while True:
     #full_model.summary()
 
     #Train the model
-    classify_train = full_model.fit(train_X, train_label, batch_size=512,epochs=100,verbose=1,validation_data=(valid_X, valid_label))
+    classify_train = full_model.fit(train_X, train_label, batch_size=batch_size,epochs=epochs,verbose=1,validation_data=(valid_X, valid_label))
 
     """Save the classification model"""
 
@@ -168,10 +168,6 @@ while True:
         layer.trainable = True
 
         full_model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(),metrics=['accuracy'])
-
-    """Train the entire model for one last time"""
-
-    classify_train = full_model.fit(train_X, train_label, batch_size=512,epochs=100,verbose=1,validation_data=(valid_X, valid_label))
 
     """Save the model"""
 
@@ -214,6 +210,10 @@ while True:
         print('Test accuracy:', test_eval[1])
 
     if flag3 :
+        batch_size = int(input("Enter batch size:"))
+        epochs = int(input("Enter epochs number:"))
+        """Train the entire model for one last time"""
+        classify_train = full_model.fit(train_X, train_label, batch_size=batch_size,epochs=epochs,verbose=1,validation_data=(valid_X, valid_label))
         """Predict Labels"""
         predicted_classes = full_model.predict(test_data)
 
@@ -227,6 +227,7 @@ while True:
             plt.imshow(test_data[correct].reshape(28,28), cmap='gray', interpolation='none')
             plt.title("Predicted {}, Class {}".format(predicted_classes[correct], test_labels[correct]))
             plt.tight_layout()
+            plt.show()
 
         incorrect = np.where(predicted_classes!=test_labels)[0]
         print ("Found %d incorrect labels" % len(incorrect))
@@ -235,7 +236,13 @@ while True:
             plt.imshow(test_data[incorrect].reshape(28,28), cmap='gray', interpolation='none')
             plt.title("Predicted {}, Class {}".format(predicted_classes[incorrect], test_labels[incorrect]))
             plt.tight_layout()
+            plt.show()
 
         """Classification Report"""
         target_names = ["Class {}".format(i) for i in range(num_classes)]
         print(classification_report(test_labels, predicted_classes, target_names=target_names))
+
+    time_to_exit = input("Exit?(y/n)")
+    if str(time_to_exit) == "y":
+        break
+        

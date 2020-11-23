@@ -114,6 +114,7 @@ while 1:
         sys.exit()
     if Ans=="SAVE":
         autoencoder.save_weights('AutoencoderWeighs.h5')
+        autoencoder.save('autoencoder')
         sys.exit()
     if Ans=="EXIT":
         sys.exit()
