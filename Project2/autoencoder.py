@@ -113,8 +113,7 @@ while 1:
         plt.show()
         sys.exit()
     if Ans=="SAVE":
-        autoencoder.save_weights('AutoencoderWeighs.h5')
-        autoencoder.save('autoencoder')
+        autoencoder.save('AutoencoderModel.h5')
         sys.exit()
     if Ans=="EXIT":
         sys.exit()
