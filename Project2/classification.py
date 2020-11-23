@@ -67,8 +67,6 @@ def extract_data(filename, num_images):
         data = data.reshape(num_images, 28,28)
         return data
 
-train_data = extract_data(train_data_file,60000)
-test_data = extract_data(test_data_file, 10000)
 
 """Function to read labels"""
 
@@ -85,8 +83,11 @@ def fc(enco):
     out = Dense(num_classes, activation='softmax')(den)
     return out
 
+#Read the data
+train_data = extract_data(train_data_file,60000)
+test_data = extract_data(test_data_file, 10000)
 
-
+#Read the lables
 train_labels = extract_labels(train_labels_file,60000)
 test_labels = extract_labels(test_labels_file,10000)
 
