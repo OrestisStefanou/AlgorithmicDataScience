@@ -113,12 +113,8 @@ while 1:
         plt.show()
         sys.exit()
     if Ans=="SAVE":
-<<<<<<< HEAD
         autoencoder.save_weights('AutoencoderWeighs.h5')
         autoencoder.save('autoencoder')
-=======
-        autoencoder.save('AutoencoderModel.h5')
->>>>>>> 08dcb65d9d340b0ed974bd08ed4c8f2f3458433d
         sys.exit()
     if Ans=="EXIT":
         sys.exit()
