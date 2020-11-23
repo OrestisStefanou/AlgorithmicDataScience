@@ -1,4 +1,5 @@
 import sys
+import struct as st
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from keras.models import load_model
@@ -19,7 +20,68 @@ from keras import backend as K
 from keras.utils import to_categorical
 
 def printHelp():
-    print("Usage is python classification.py –d <training set> –dl <training labels> -t <testset> -tl <test labels> -model <autoencoder h5>")
+    print("Usage is python classification.py -d <training set> -dl <training labels> -t <testset> -tl <test labels> -model <autoencoder h5>")
+
+
+"""Function to read the data"""
+
+def read_data(filename):
+    file = gzip.open(filename,'rb')
+    file.seek(0)
+    magic_number = st.unpack('>4B',file.read(4)) # read magic number
+    number_of_images = st.unpack('>I',file.read(4))[0] # read number of images
+    number_of_rows = st.unpack('>I',file.read(4))[0] #read number of rows
+    number_of_columns = st.unpack('>I',file.read(4))[0] #read number of column
+    with gzip.open(filename) as file_stream:
+        file_stream.read(16)
+        buf = file_stream.read(number_of_rows * number_of_columns * number_of_images)
+        data = np.frombuffer(buf, dtype=np.uint8).astype(np.float32)
+        data = data.reshape(number_of_images, number_of_rows,number_of_columns)
+        return data
+    
+
+"""Function to read labels"""
+
+def read_labels(filename):
+    file = gzip.open(filename,'rb')
+    file.seek(0)
+    magic_number = st.unpack('>4B',file.read(4)) # read magic number
+    number_of_iteams = st.unpack('>I',file.read(4))[0] # read number of images
+    with gzip.open(filename) as file_stream:
+        file_stream.read(8)
+        buf = file_stream.read(number_of_iteams)
+        labels = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
+        return labels
+    
+def fc(enco):
+    flat = Flatten()(enco)
+    den = Dense(128, activation='relu')(flat)
+    out = Dense(num_classes, activation='softmax')(den)
+    return out
+
+
+def encoder(input_img):
+    #encoder
+    #input = 28 x 28 x 1 (wide and thin)
+    conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img) #28 x 28 x 32
+    conv1 = BatchNormalization()(conv1)
+    conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
+    conv1 = BatchNormalization()(conv1)
+    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1) #14 x 14 x 32
+    conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(pool1) #14 x 14 x 64
+    conv2 = BatchNormalization()(conv2)
+    conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv2)
+    conv2 = BatchNormalization()(conv2)
+    pool2 = MaxPooling2D(pool_size=(2, 2))(conv2) #7 x 7 x 64
+    conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(pool2) #7 x 7 x 128 (small and thick)
+    conv3 = BatchNormalization()(conv3)
+    conv3 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv3)
+    conv3 = BatchNormalization()(conv3)
+    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv3) #7 x 7 x 256 (small and thick)
+    conv4 = BatchNormalization()(conv4)
+    conv4 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv4)
+    conv4 = BatchNormalization()(conv4)
+    return conv4
 
 if len(sys.argv) != 11:
     printHelp()
@@ -57,39 +119,14 @@ print("Test labels file is:" + test_labels_file)
 print("Model file is:" + autoencoder_file)"""
 
 
-"""Function to read the data"""
-
-def extract_data(filename, num_images):
-    with gzip.open(filename) as bytestream:
-        bytestream.read(16)
-        buf = bytestream.read(28 * 28 * num_images)
-        data = np.frombuffer(buf, dtype=np.uint8).astype(np.float32)
-        data = data.reshape(num_images, 28,28)
-        return data
-
-
-"""Function to read labels"""
-
-def extract_labels(filename, num_images):
-    with gzip.open(filename) as bytestream:
-        bytestream.read(8)
-        buf = bytestream.read(1 * num_images)
-        labels = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
-        return labels
-
-def fc(enco):
-    flat = Flatten()(enco)
-    den = Dense(128, activation='relu')(flat)
-    out = Dense(num_classes, activation='softmax')(den)
-    return out
 
 #Read the data
-train_data = extract_data(train_data_file,60000)
-test_data = extract_data(test_data_file, 10000)
+train_data = read_data(train_data_file)
+test_data = read_data(test_data_file)
 
 #Read the lables
-train_labels = extract_labels(train_labels_file,60000)
-test_labels = extract_labels(test_labels_file,10000)
+train_labels = read_labels(train_labels_file)
+test_labels = read_labels(test_labels_file)
 
 # Create dictionary of target classes
 label_dict = {
@@ -120,7 +157,7 @@ train_X,valid_X,train_ground,valid_ground = train_test_split(train_data,
                                                              random_state=13)
 
 #Load the autoencoder model
-autoencoder = load_model(autoencoder_file)
+autoencoder = keras.models.load_model(autoencoder_file)
 
 while True:
     batch_size = int(input("Enter batch size:"))
@@ -142,18 +179,12 @@ while True:
     for l1,l2 in zip(full_model.layers[:19],autoencoder.layers[0:19]):
         l1.set_weights(l2.get_weights())
 
-    #autoencoder.get_weights()[0][1]
-
-    #full_model.get_weights()[0][1]
-
     for layer in full_model.layers[0:19]:
         layer.trainable = False
 
 
     full_model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(),metrics=['accuracy'])
 
-
-    #full_model.summary()
 
     #Train the model
     classify_train = full_model.fit(train_X, train_label, batch_size=512,epochs=100,verbose=1,validation_data=(valid_X, valid_label))
