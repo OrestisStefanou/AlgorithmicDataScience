@@ -73,7 +73,8 @@ int ReadData(vector<vector<double>> &data_vector, char *data_path)
 
 //Read the compressed data
 int ReadDataCompressed(vector<vector<double>> &data,char *data_path){
-    char line[300];
+    int len = 10000;    //Buffer size to get each image pixel
+    char line[len];
     FILE *fp;
     fp = fopen(data_path,"r");
 	if (fp == NULL){
@@ -82,15 +83,15 @@ int ReadDataCompressed(vector<vector<double>> &data,char *data_path){
 	}
 	char *eptr;	//for strtod
 	//Read number of images
-	fgets(line,300,fp);
+	fgets(line,len,fp);
 	int imgNumber = atoi(line);
 	//printf("NUmber of images:%d\n",imgNumber);
 	//Read number of rows
-    fgets(line,300,fp);
+    fgets(line,len,fp);
     int rowsNumber = atoi(line);
     //printf("NUmber of rows:%d\n",rowsNumber);
 	//Read number of columns
-    fgets(line,300,fp);
+    fgets(line,len,fp);
     int colNumber = atoi(line);
     //printf("NUmber of columns:%d\n",colNumber);
 	//Resize the data vector
@@ -105,7 +106,7 @@ int ReadDataCompressed(vector<vector<double>> &data,char *data_path){
 	}
 	int i = 0;
 	//Read image's pixels
-    while(fgets(line,300,fp)){
+    while(fgets(line,len,fp)){
 		strtok(line,"\n");
 		char *token = strtok(line," ");
 		for(int j=0; j < rowsNumber * colNumber; j++) {
@@ -120,11 +121,11 @@ int ReadDataCompressed(vector<vector<double>> &data,char *data_path){
 	//printf("\n\n\n");
 	//Print the first 10 images from the data
 	for(int i=0;i<11;i++){
-		for(int j=0;j<rowsNumber * colNumber;j++){}
+		for(int j=0;j<rowsNumber * colNumber;j++){
 			//printf("%f ",data[i][j]);
+        }
 		//printf("\n");
 	}
-
     return 0;	
 }
 
