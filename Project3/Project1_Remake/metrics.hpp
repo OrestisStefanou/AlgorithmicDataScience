@@ -59,7 +59,7 @@ void compareResults(vector<int> &trainLabels,vector<int> &testLabels,vector<pair
     int queryLabel = testLabels[queryIndex];
     for (int i = 0; i < results.size(); i++)
     {
-        if (trainLabels[results[i].second] == queryLabel)
+        if (trainLabels[results[i].first] == queryLabel)
         {
             correct++;
         }else
