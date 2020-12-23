@@ -120,12 +120,38 @@ int ReadDataCompressed(vector<vector<double>> &data,char *data_path){
 	fclose(fp);
 	//printf("\n\n\n");
 	//Print the first 10 images from the data
-	for(int i=0;i<11;i++){
-		for(int j=0;j<rowsNumber * colNumber;j++){
+	//for(int i=0;i<11;i++){
+	//	for(int j=0;j<rowsNumber * colNumber;j++){
 			//printf("%f ",data[i][j]);
-        }
+    //    }
 		//printf("\n");
+	//}
+    return 0;	
+}
+
+int readLabels(vector<int> &labels,char *labels_path){
+    int len = 20;    //Buffer size to get each image pixel
+    char line[len];
+    FILE *fp;
+    fp = fopen(labels_path,"r");
+	if (fp == NULL){
+		printf("Error during opening the file\n");
+		return -1;
 	}
+	//Read number of labels
+	fgets(line,len,fp);
+	int lblNumber = atoi(line);
+	//printf("NUmber of labels:%d\n",imgNumber);
+	//Read the labels
+    while(fgets(line,len,fp)){
+        labels.push_back(atoi(line));
+    }
+	fclose(fp);
+	//printf("\n\n\n");
+	//Print the first 10 labels from the data
+	//for(int i=0;i<10;i++){
+	//	printf("%d\n",labels[i]);
+	//}
     return 0;	
 }
 

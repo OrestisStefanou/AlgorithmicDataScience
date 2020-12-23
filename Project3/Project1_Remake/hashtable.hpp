@@ -39,7 +39,7 @@ Hashtable::Hashtable(int size,int sRandInit,int k,int w,int r,int d,int DatasetS
     this->w = w;
     this->datasetSize = DatasetSize;
 
-    cout << "DATASET SIZE IS:" << this->datasetSize << endl;
+    //cout << "DATASET SIZE IS:" << this->datasetSize << endl;
 
     //Resize s_vectors
     this->s_vectors.resize(k,vector<int>(d));   //Resize the vector to fit the data

@@ -53,4 +53,23 @@ int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
     return distance;
 }
 
+void compareResults(vector<int> &trainLabels,vector<int> &testLabels,vector<pair<int, int>> &results,int queryIndex){
+    int correct = 0;
+    int wrong = 0;
+    int queryLabel = testLabels[queryIndex];
+    for (int i = 0; i < results.size(); i++)
+    {
+        if (trainLabels[results[i].second] == queryLabel)
+        {
+            correct++;
+        }else
+        {
+            wrong++;
+        }
+    }
+    cout << correct << " correct neighbors found" << endl;
+    cout << wrong << " wrong neighbors found" << endl;
+
+}
+
 #endif

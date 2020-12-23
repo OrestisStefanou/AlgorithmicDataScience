@@ -188,13 +188,22 @@ int main(int argc, char const *argv[])
         }
     }
     
+    //Read the lables
+    vector<int> trainLabels;
+    if(readLabels(trainLabels,(char *)"trainLabels")){
+        exit(1);
+    }
+    vector<int>testLabels;
+    if(readLabels(testLabels,(char *)"testLabels")){
+        exit(1);
+    }
 
     LSH lsh = LSH(k, L, training_data, R);
 
     ofstream outfile;
     outfile.open(output_file); //Create the outpout file
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 1; i++)
     {
         //Find the approximate N nearest neighbors
         clock_t start, end;
@@ -209,6 +218,10 @@ int main(int argc, char const *argv[])
         double exact_knn_time = double(end - start) / double(CLOCKS_PER_SEC);
         //Do the range search
         vector<int> range_results = lsh.range_search(query_data[i], i, R);
+
+        //Check the results
+        compareResults(trainLabels,testLabels,exact_results,i);
+
         //Write the results in the output file
         outfile << "Query:" << i << "\n";
         for (int j = 0; j < appr_results.size(); j++)
