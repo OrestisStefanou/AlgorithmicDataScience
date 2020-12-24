@@ -198,7 +198,7 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    LSH lsh = LSH(k, L, training_data, R);
+    LSH lsh = LSH(k, L, training_data, R,(char *)"EMD");
 
     ofstream outfile;
     outfile.open(output_file); //Create the outpout file
@@ -220,7 +220,7 @@ int main(int argc, char const *argv[])
         vector<int> range_results = lsh.range_search(query_data[i], i, R);
 
         //Check the results
-        compareResults(trainLabels,testLabels,exact_results,i);
+        compareResults(trainLabels,testLabels,appr_results,i);
 
         //Write the results in the output file
         outfile << "Query:" << i << "\n";

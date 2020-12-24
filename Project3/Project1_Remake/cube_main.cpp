@@ -175,7 +175,7 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    BinaryHyperCube BhyperCube = BinaryHyperCube(training_data, k, M, probes, R);
+    BinaryHyperCube BhyperCube = BinaryHyperCube(training_data, k, M, probes, R,(char *)"L1");
 
     ofstream outfile;
     outfile.open(output_file); //Create the outpout file

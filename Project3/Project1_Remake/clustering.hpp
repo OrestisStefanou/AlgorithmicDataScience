@@ -32,9 +32,10 @@ class Clustering
 {
 private:
     vector<vector<double>> data;
+    char distanceType[20];
 
 public:
-    Clustering(vector<vector<double>> &);
+    Clustering(vector<vector<double>> &,char *);
     ~Clustering();
     pair<vector<vector<int>>, vector<vector<double>>> loyds(int k);
     pair<vector<vector<int>>, vector<vector<double>>> lsh(int k, int L, int KforLSH);
@@ -42,9 +43,10 @@ public:
     vector<vector<double>> silhouette_score(vector<vector<int>> clusters, vector<vector<double>> centroids);
 };
 
-Clustering::Clustering(vector<vector<double>> &data_vector)
+Clustering::Clustering(vector<vector<double>> &data_vector,char *distType)
 {
     this->data = data_vector;
+    strcpy(this->distanceType,distType);
 }
 
 //Return a vector with the cluster that each image belongs
@@ -98,7 +100,7 @@ pair<vector<vector<int>>, vector<vector<double>>> Clustering::loyds(int k)
             vector<pair<int, int>> distances; //A pair with cluster number and distance
             for (int j = 0; j < k; j++)
             {
-                int manhattan_dist = metrics.get_distance(this->data[i], centroids[j], (char *)"L1");
+                int manhattan_dist = metrics.get_distance(this->data[i], centroids[j], this->distanceType);
                 distances.push_back(make_pair(j, manhattan_dist));
             }
             //Sort distances vector
@@ -180,7 +182,7 @@ pair<vector<vector<int>>, vector<vector<double>>> Clustering::lsh(int k, int L, 
     vector<vector<int>> AssignedPoints(this->data.size(), vector<int>(2, 0));
 
     //LSH Initialization
-    LSH lsh = LSH(KforLSH, L, this->data, R);
+    LSH lsh = LSH(KforLSH, L, this->data, R,this->distanceType);
 
     int r = R;
     for (int m = 0; m < 10; m++)
@@ -211,11 +213,11 @@ pair<vector<vector<int>>, vector<vector<double>>> Clustering::lsh(int k, int L, 
                     int manhattan_dist;
 
                     //ipologizi tin apostasi apo to paron cluster
-                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[i], (char *)"L1");
+                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[i], this->distanceType);
                     distances.push_back(make_pair(i, manhattan_dist));
 
                     //ipologizi tin apostasi apo to cluster opou aniki
-                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[AssignedPoints[range_results[j]][CLUSTER]], (char *)"L1");
+                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[AssignedPoints[range_results[j]][CLUSTER]], this->distanceType);
                     distances.push_back(make_pair(AssignedPoints[range_results[j]][CLUSTER], manhattan_dist));
 
                     //Sort distances vector
@@ -284,7 +286,7 @@ pair<vector<vector<int>>, vector<vector<double>>> Clustering::lsh(int k, int L, 
             vector<pair<int, int>> distances; //A pair with cluster number and distance
             for (int j = 0; j < k; j++)
             {
-                int manhattan_dist = metrics.get_distance(this->data[i], centroids[j], (char *)"L1");
+                int manhattan_dist = metrics.get_distance(this->data[i], centroids[j], this->distanceType);
                 distances.push_back(make_pair(j, manhattan_dist));
             }
             //Sort distances vector
@@ -365,7 +367,7 @@ pair<vector<vector<int>>, vector<vector<double>>>Clustering::hypercube(int k,int
     vector<vector<int>> AssignedPoints(this->data.size(), vector<int>(2, 0));
 
     //HyperCube Initialization
-    BinaryHyperCube cube = BinaryHyperCube(this->data,HyperCube_k,M,probes,R);
+    BinaryHyperCube cube = BinaryHyperCube(this->data,HyperCube_k,M,probes,R,this->distanceType);
 
     int r = R;
     for (int m = 0; m < 10; m++)
@@ -396,11 +398,11 @@ pair<vector<vector<int>>, vector<vector<double>>>Clustering::hypercube(int k,int
                     int manhattan_dist;
 
                     //ipologizi tin apostasi apo to paron cluster
-                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[i], (char *)"L1");
+                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[i], this->distanceType);
                     distances.push_back(make_pair(i, manhattan_dist));
 
                     //ipologizi tin apostasi apo to cluster opou aniki
-                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[AssignedPoints[range_results[j]][CLUSTER]], (char *)"L1");
+                    manhattan_dist = metrics.get_distance(this->data[range_results[j]], centroids[AssignedPoints[range_results[j]][CLUSTER]], this->distanceType);
                     distances.push_back(make_pair(AssignedPoints[range_results[j]][CLUSTER], manhattan_dist));
 
                     //Sort distances vector
@@ -469,7 +471,7 @@ pair<vector<vector<int>>, vector<vector<double>>>Clustering::hypercube(int k,int
             vector<pair<int, int>> distances; //A pair with cluster number and distance
             for (int j = 0; j < k; j++)
             {
-                int manhattan_dist = metrics.get_distance(this->data[i], centroids[j], (char *)"L1");
+                int manhattan_dist = metrics.get_distance(this->data[i], centroids[j], this->distanceType);
                 distances.push_back(make_pair(j, manhattan_dist));
             }
             //Sort distances vector
@@ -531,14 +533,14 @@ vector<vector<double>> Clustering::silhouette_score(vector<vector<int>> clusters
             //Calculate average distance of j image to images in the same cluster
             for (int z = 0; z < clusters[i].size(); z++)
             {
-                sum += metrics.get_distance(this->data[clusters[i][j]], this->data[clusters[i][z]], (char *)"L1");
+                sum += metrics.get_distance(this->data[clusters[i][j]], this->data[clusters[i][z]], this->distanceType);
             }
             a.push_back(double(sum / clusters[i].size()));
             //Find 2nd closest centroid
             vector<pair<int, int>> distances;
             for (int k = 0; k < centroids.size(); k++)
             {
-                int manhattan_dist = metrics.get_distance(this->data[clusters[i][j]], centroids[k], (char *)"L1");
+                int manhattan_dist = metrics.get_distance(this->data[clusters[i][j]], centroids[k], this->distanceType);
                 distances.push_back(make_pair(k, manhattan_dist));
             }
             //Sort distances
@@ -548,7 +550,7 @@ vector<vector<double>> Clustering::silhouette_score(vector<vector<int>> clusters
             sum = 0;
             for (int z = 0; z < clusters[second_best].size(); z++)
             {
-                sum += metrics.get_distance(this->data[clusters[i][j]], this->data[clusters[second_best][z]], (char *)"L1");
+                sum += metrics.get_distance(this->data[clusters[i][j]], this->data[clusters[second_best][z]], this->distanceType);
             }
             b.push_back(double(sum / clusters[i].size()));
         }
