@@ -43,7 +43,10 @@ def saveNewImages(compressedImgs,filename):
         f.write(strPixel + " ")
     f.write("\n")
   f.close()
-  
+ 
+ def normalize(x):
+    return [(25500*(x - np.min(x))/np.ptp(x)).astype(int)]
+    
 #Check program arguments
 if ((len(sys.argv))!=9):
     print("Usage is: python reduce.py -d <dataset> -q <queryset> -od <output_dataset_file> -oq <output_query_file>")
@@ -115,8 +118,8 @@ while 1:
         encoder = Model(inputs=input_img, outputs=bottleneck)
         X_train_encode = encoder.predict(train_data)
         X_test_encode = encoder.predict(test_data)
-        saveNewImages(X_train_encode,sys.argv[6])
-        saveNewImages(X_test_encode,sys.argv[8])
+        saveNewImages(normalize(X_train_encode),sys.argv[6])
+        saveNewImages(normalize(X_test_encode),sys.argv[8])
         sys.exit()
     if Ans=="EXIT":
         sys.exit()
