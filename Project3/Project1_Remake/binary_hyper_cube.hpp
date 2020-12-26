@@ -18,9 +18,10 @@ private:
     int M;
     int probes;
     int R;
+    char distanceType[20];
 
 public:
-    BinaryHyperCube(vector<vector<double>> &data_vector, int k, int M, int probes, int R);
+    BinaryHyperCube(vector<vector<double>> &data_vector, int k, int M, int probes, int R,char *distType);
     ~BinaryHyperCube();
     int f(int);
     int h(vector<double> &, int);
@@ -32,13 +33,14 @@ public:
     vector<int> get_bucket_imgs(int bucket_index);
 };
 
-BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector, int k, int M, int probes, int R)
+BinaryHyperCube::BinaryHyperCube(vector<vector<double>> &data_vector, int k, int M, int probes, int R,char *distType)
 {
     this->data = data_vector;
     this->d = k;
     this->M = M;
     this->probes = probes;
     this->R = R;
+    strcpy(this->distanceType,distType);
 
     //Resize s_vectors
     this->s_vectors.resize(this->d, vector<int>(data_vector[0].size()));
@@ -199,7 +201,7 @@ vector<pair<int, int>> BinaryHyperCube::knn(vector<double> q, int img_index, int
     vector<pair<int,int>> temp_distances;
     for (int i = 0; i < img_indexes.size(); i++)
     {
-        int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
+        int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,this->distanceType);
         img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
     }
     img_indexes.clear();
@@ -214,7 +216,7 @@ vector<pair<int, int>> BinaryHyperCube::knn(vector<double> q, int img_index, int
             img_indexes = this->get_bucket_imgs(i);
             for (int i = 0; i < img_indexes.size(); i++)
             {
-                int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
+                int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,this->distanceType);
                 img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
             }
             img_indexes.clear();
@@ -263,7 +265,7 @@ vector<int> BinaryHyperCube::range_search(vector<double> q, int img_index, doubl
     vector<pair<int,int>> temp_distances;
     for (int i = 0; i < img_indexes.size(); i++)
     {
-        int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
+        int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,this->distanceType);
         if(manhattan_dist < c*r)
             img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
     }
@@ -279,7 +281,7 @@ vector<int> BinaryHyperCube::range_search(vector<double> q, int img_index, doubl
             img_indexes = this->get_bucket_imgs(i);
             for (int i = 0; i < img_indexes.size(); i++)
             {
-                int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,(char *)"L1");
+                int manhattan_dist = metrics.get_distance(this->data[img_indexes[i]],q,this->distanceType);
                 if(manhattan_dist < c*r)
                     img_distances.insert(make_pair(img_indexes[i],manhattan_dist)); //Insert the pair in the map
             }
@@ -303,7 +305,7 @@ vector<pair<int, int>> BinaryHyperCube::exact_nearest_neighbor(vector<double> q,
     //Calculate the distances from all the images and insert them in a vector
     for (int i = 0; i < this->data.size(); i++)
     {
-        int distance = metrics.get_distance(this->data[i],q,(char *)"L1");
+        int distance = metrics.get_distance(this->data[i],q,this->distanceType);
         distances.push_back(make_pair(i,distance));
     }
     //Sort the distances vector

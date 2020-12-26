@@ -14,9 +14,10 @@ private:
     int K;  
     int L;  
     int r;
+    char distanceType[20];
     vector<vector<double>> data;
 public:
-    LSH(int ,int ,vector<vector<double>> &data_vector,int r);
+    LSH(int ,int ,vector<vector<double>> &data_vector,int r,char *distType);
     pair<int,int> nearest_neighbor(vector<double> q,int img_index);
     vector<pair<int,int>> knn(vector<double> q,int img_index,int k);    //Approximate
     vector<int> range_search(vector<double> q,int img_index,double r,int c);
@@ -26,12 +27,13 @@ public:
 
 //k->ακέραιο πλήθος k των LSH συναρτήσεων hi που χρησιμοποιούνται για τον ορισμό των g
 //ο ακέραιος αριθμός L των πινάκων κατακερματισμού
-LSH::LSH(int k,int L,vector<vector<double>> &data_vector,int r)
+LSH::LSH(int k,int L,vector<vector<double>> &data_vector,int r,char *distType)
 {
     this->data = data_vector;   //Create a copy of the dataset
     this->K = k;
     this->L = L;
     this->r = r;
+    strcpy(this->distanceType,distType);
 
     for (int i = 0; i < L; i++)
     {   
@@ -65,11 +67,11 @@ pair<int,int> LSH::nearest_neighbor(vector<double> q,int img_index){
         //Get the image indexes that are in bucket hash index from hashtable i
         vector<int> img_indexes = this->hashtables[i]->get_bucket_imgs(hash_index);
         //Find the index of the image that has the min distance from image q
-        int min_distance = metrics.get_distance(this->data[img_indexes[0]],q,(char *)"L1");
+        int min_distance = metrics.get_distance(this->data[img_indexes[0]],q,this->distanceType);
         int min_dist_img_index = img_indexes[0];
         for (int j = 1; j < img_indexes.size(); j++)
         {
-            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,(char *)"L1");
+            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,this->distanceType);
             if(manhattan_dist < min_distance){
                 min_distance = manhattan_dist;
                 min_dist_img_index = img_indexes[j];
@@ -112,7 +114,7 @@ vector<pair<int,int>> LSH::knn(vector<double> q,int img_index,int k){
         vector<pair<int,int>> temp_distances;   //Pair is the index of the image and it's distance from q
         for (int j = 0; j < img_indexes.size(); j++)
         {
-            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,(char *)"L1");
+            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,this->distanceType);
             temp_distances.push_back(make_pair(img_indexes[j],manhattan_dist));
         }
         //Sort temp distances based on the distance
@@ -166,7 +168,7 @@ vector<int> LSH::range_search(vector<double> q,int img_index,double r,int c=1){
         //Calculate the distances from image q
         for (int j = 0; j < img_indexes.size(); j++)
         {
-            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,(char *)"L1");
+            int manhattan_dist = metrics.get_distance(this->data[img_indexes[j]],q,this->distanceType);
             if(manhattan_dist < c*r){
                 //Add the pair (image_index,distance from q) in the map
                 pair<int,int> img_dist (img_indexes[j],manhattan_dist);
@@ -190,7 +192,7 @@ vector<pair<int,int>> LSH::exact_nearest_neighbor(vector<double> q,int k){
     //Calculate the distances from all the images and insert them in a vector
     for (int i = 0; i < this->data.size(); i++)
     {
-        int distance = metrics.get_distance(this->data[i],q,(char *)"L1");
+        int distance = metrics.get_distance(this->data[i],q,this->distanceType);
         distances.push_back(make_pair(i,distance));
     }
     //Sort the distances vector

@@ -3,6 +3,7 @@
 #include<vector>
 #include <bits/stdc++.h> 
 #include<string.h>
+#include"EMD.hpp"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ Metrics::~Metrics()
 
 //Returns the "type" distance between vector a and vector b
 //type = "L1"->returns Manhatan distance
+//type = "EMD"->returns Earth mover's distance
 int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
     int distance = 0;
 
@@ -42,12 +44,25 @@ int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
         cout << "Size of two vectors is not the same" << endl;
         return -1;
     }
-
+    //Manhattan distance
     if(strcmp((char *)"L1",type)==0){
         for (int i = 0; i < a.size(); i++)
         {
             distance += abs(double(a[i]) - double(b[i]));
         }
+        return distance;
+    }
+    //Earth mover's distance
+    if(strcmp((char *)"EMD",type) == 0){
+        vector<double> aw;
+        vector<double> bw;
+        //Initialize weights(We give the same weight to each pixel)
+        for (int i = 0; i < a.size(); i++)
+        {
+            aw.push_back(1);
+            bw.push_back(1);
+        }
+        distance = emd(a,aw,b,bw);
         return distance;
     }
     return distance;

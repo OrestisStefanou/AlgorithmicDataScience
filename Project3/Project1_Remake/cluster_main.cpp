@@ -195,7 +195,7 @@ int main(int argc, char const *argv[])
     {
         exit(1);
     }
-    Clustering cluster = Clustering(training_data);
+    Clustering cluster = Clustering(training_data,(char *)"L1");
     clock_t start, end;
     pair<vector<vector<int>>, vector<vector<double>>> results;
     start = clock();
