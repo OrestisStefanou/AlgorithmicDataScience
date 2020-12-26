@@ -82,9 +82,9 @@ while 1:
 
     #Model Complilation and Training
     #encoder
-    conv1 = Conv2D(32, (15, 15), activation='softmax', padding='valid')(input_img) # 14 x 14 x 32
-    conv2 = Conv2D(64, (8, 8), activation='softmax', padding='valid')(conv1) # 7 x 7 x 64
-    conv3 = Conv2D(128, (5, 5), activation='softmax', padding='valid')(conv2) # 3 x 3 x 128
+    conv1 = Conv2D(32, (2, 2), activation='relu', padding='valid',strides=2)(input_img) # 14 x 14 x 32
+    conv2 = Conv2D(64, (2, 2), activation='relu', padding='valid',strides=2)(conv1) # 7 x 7 x 64
+    conv3 = Conv2D(128, (2, 2), activation='relu', padding='valid',strides=2)(conv2) # 3 x 3 x 128
 
     # bottleneck
     n_bottleneck = 1
@@ -92,14 +92,14 @@ while 1:
 
     flatten = Flatten()(conv3)
     encoded = Dense(int(10), activation='relu')(flatten)
-    decoded = Dense(units = 3*3*128, activation='sigmoid')(encoded)
+    decoded = Dense(units = 3*3*128, activation='relu')(encoded)
     reshape = Reshape(target_shape = (3,3,128))(decoded)  # 3 x 3 x 128
 
 
     #decoder
-    conv4 = Conv2DTranspose(64, (5, 5), activation='softmax', padding='valid')(reshape) # 7 x 7 x 64
-    conv5 = Conv2DTranspose(32, (8, 8), activation='softmax', padding='valid')(conv4) # 14 x 14 x 32
-    conv6 = Conv2DTranspose(1, (15, 15), activation='sigmoid', padding='valid')(conv5) # 28 x 28 x 1
+    conv4 = Conv2DTranspose(64, (3, 3), activation='relu', padding='valid',strides=2)(reshape) # 7 x 7 x 64
+    conv5 = Conv2DTranspose(32, (2, 2), activation='relu', padding='valid',strides=2)(conv4) # 14 x 14 x 32
+    conv6 = Conv2DTranspose(1, (2, 2), activation='sigmoid', padding='valid',strides=2)(conv5) # 28 x 28 x 1
 
 
     decoded = conv6
