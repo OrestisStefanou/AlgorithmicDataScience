@@ -45,7 +45,7 @@ def saveNewImages(compressedImgs,filename):
   f.close()
  
  def normalize(x):
-    return [(25500*(x - np.min(x))/np.ptp(x)).astype(int)]
+    return (25500*(x - np.min(x))/np.ptp(x)).astype(int)
     
 #Check program arguments
 if ((len(sys.argv))!=9):
