@@ -161,18 +161,38 @@ int main(int argc, char const *argv[])
         output_file[strlen(output_file) - 1] = '\0'; //Strip the '\n' character
     }
 
-    //Read the training dataset
+    string dataType;
+    cout << "Please enter data type:(0->Normal data,1->Compressed data)" << endl;
+    cin >> dataType;
     vector<vector<double>> training_data;
-    if (ReadData(training_data, (char *)input_file))
-    {
-        exit(1);
-    }
-
-    //Read the query dataset
     vector<vector<double>> query_data;
-    if (ReadData(query_data, (char *)query_file))
+    if (dataType == "0"){
+        //cout << "Normal Data" << endl;
+        //Read the training dataset
+        if (ReadData(training_data, (char *)input_file))
+        {
+            exit(1);
+        }
+
+        //Read the query dataset
+        if (ReadData(query_data, (char *)query_file))
+        {
+            exit(1);
+        } 
+    }else
     {
-        exit(1);
+        //cout << "COMPRESSED DATA" << endl;
+        //Read the training dataset
+        if (ReadDataCompressed(training_data, (char *)input_file))
+        {
+            exit(1);
+        }
+
+        //Read the query dataset
+        if (ReadDataCompressed(query_data, (char *)query_file))
+        {
+            exit(1);
+        }
     }
 
     BinaryHyperCube BhyperCube = BinaryHyperCube(training_data, k, M, probes, R,(char *)"L1");
