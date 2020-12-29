@@ -1,0 +1,20 @@
+EROTIMA B:
+GIA N = 100
+-Xronos LSH me simpiesmena dedomena:0.56058
+-Xronos brute force me simpiesmena dedomena:0.59
+-Xronos LSH me ta arxika dedomena:6.8085
+-Xronos brute force me ta arxika dedomena:7.9102
+
+GIA N = 10
+-Xronos LSH me simpiesmena dedomena:0.56502
+-Xronos brute force me simpiesmena dedomena:0.60
+-Xronos LSH me ta arxika dedomena:7.1085
+-Xronos brute force me ta arxika dedomena:8.1102
+
+GIA N = 1
+-Xronos LSH me simpiesmena dedomena:0.55244
+-Xronos brute force me simpiesmena dedomena:0.59909
+-Xronos LSH me ta arxika dedomena:6.0255
+-Xronos brute force me ta arxika dedomena:7.771
+
+To N den epireazi idietera tous xronous
