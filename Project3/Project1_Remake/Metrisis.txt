@@ -18,3 +18,14 @@ GIA N = 1
 -Xronos brute force me ta arxika dedomena:7.771
 
 To N den epireazi idietera tous xronous
+
+EROTIMA G:
+-Xronos LSH me simpiesmena dedomena kai EMD:30.985
+-Xronos brute force me ta arxika dedomena kai EMD:32.8041
+-Apotelesmata 10 kontinoteron gitonon:
+    5 sosta 5 lathos
+
+-Xronos LSH me ta arxika dedomena kai EMD:2606.7
+-Xronos brute force me ta arxika dedomena kai EMD:2708.8
+-Apotelesmata 10 kontinoteron gitonon:
+    1 sosta 9 lathos
