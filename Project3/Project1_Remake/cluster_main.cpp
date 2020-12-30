@@ -10,7 +10,7 @@ using namespace std;
 void print_help()
 {
     cout << "Usage is:" << endl;
-    cout << "./cluster -i <input file> -c <configuration file> -o <output file> -complete(optional) -m <method: Lloyds OR LSH or Hypercube>" << endl;
+    cout << "./cluster –d <input file original space> -i <input file new space> -n <classes from NN as clusters file> –c <configuration file> -o <output file>" << endl;
 }
 
 int main(int argc, char const *argv[])
@@ -18,20 +18,51 @@ int main(int argc, char const *argv[])
     int K, L = 3, number_of_vector_hash_functions = 4;
     int max_number_M_hypercube = 10, number_of_hypercube_dimensions = 3, number_of_probes = 2;
 
-    char input_file[250], output_file[250], conf_file[250];
+    char input_file_original[250], output_file[250], conf_file[250],input_file_new_space[250];
+    char NN_clustersFile[250];
     char method[50];
     bool complete_flag = false;
 
-    if (argc > 8)
+    if (argc > 11)
     {
         //Parse the command line arguments
         for (int i = 1; i < argc; i++)
         {
+            if (strcmp(argv[i], "-d") == 0)
+            {
+                if (i + 1 < argc)
+                {
+                    stpcpy(input_file_original, argv[i + 1]);
+                    i++;
+                    continue;
+                }
+                else
+                {
+                    print_help();
+                    exit(1);
+                }
+            }
+
+            if (strcmp(argv[i], "-n") == 0)
+            {
+                if (i + 1 < argc)
+                {
+                    stpcpy(NN_clustersFile, argv[i + 1]);
+                    i++;
+                    continue;
+                }
+                else
+                {
+                    print_help();
+                    exit(1);
+                }
+            }
+
             if (strcmp(argv[i], "-i") == 0)
             {
                 if (i + 1 < argc)
                 {
-                    stpcpy(input_file, argv[i + 1]);
+                    stpcpy(input_file_new_space, argv[i + 1]);
                     i++;
                     continue;
                 }
@@ -189,45 +220,35 @@ int main(int argc, char const *argv[])
     cout << "number_of_hypercube_dimensions:" << number_of_hypercube_dimensions << endl;
     cout << "number of probes:" << number_of_probes << endl;*/
 
-    string dataType;
-    cout << "Please enter data type:(0->Normal data,1->Compressed data)" << endl;
-    cin >> dataType;
-    vector<vector<double>> training_data;
-    if (dataType == "0"){
-        //cout << "Normal Data" << endl;
-        //Read the training dataset
-        if (ReadData(training_data, (char *)input_file))
-        {
-            exit(1);
-        }
-    }else
+    vector<vector<double>> training_data_original;
+    vector<vector<double>> training_data_new_space;
+    
+    //Read the original training dataset
+    if (ReadData(training_data_original, (char *)input_file_original))
     {
-        //cout << "COMPRESSED DATA" << endl;
-        //Read the training dataset
-        if (ReadDataCompressed(training_data, (char *)input_file))
-        {
-            exit(1);
-        }
+        exit(1);
+    }
+     
+    //Read the training dataset
+    if (ReadDataCompressed(training_data_new_space, (char *)input_file_new_space))
+    {
+        exit(1);
     }
 
-    Clustering cluster = Clustering(training_data,(char *)"L1");
+    Clustering cluster = Clustering(training_data_original,(char *)"L1");
+    Clustering cluster2 = Clustering(training_data_new_space,(char *)"L1");
+
     clock_t start, end;
     pair<vector<vector<int>>, vector<vector<double>>> results;
     start = clock();
-    
-    if (strcmp(method_copy,"Lloyds") == 0){
-        results = cluster.loyds(K);
-    }
-    else if (strcmp(method_copy, "LSH") == 0)
-        results = cluster.lsh(K, L, number_of_vector_hash_functions);
-    else if (strcmp(method_copy, "Hypercube") == 0)
-        results = cluster.hypercube(K, number_of_hypercube_dimensions, max_number_M_hypercube, number_of_probes);
-    else
-    {
-        cout << "Wrong method given\n";
-        exit(1);
-    }
+    results = cluster.loyds(K);
     end = clock();
+
+    pair<vector<vector<int>>, vector<vector<double>>> results_newSpace;
+    start = clock();
+    results_newSpace = cluster2.loyds(K);
+    end = clock();
+
     vector<vector<double>> scores = cluster.silhouette_score(results.first, results.second);
     vector<double>silhouete_scores;
     double s_total = 0.0;
@@ -241,12 +262,48 @@ int main(int argc, char const *argv[])
         silhouete_scores.push_back(sum/scores[i].size());
         s_total += sum/scores[i].size();
     }
+
+    vector<vector<double>> scores_newSpace = cluster2.silhouette_score(results_newSpace.first, results_newSpace.second);
+    vector<double>silhouete_scores_newSpace;
+    double s_total_newSpace = 0.0;
+    for (int i = 0; i < scores_newSpace.size(); i++)
+    {
+        double sum = 0.0;
+        for (int j = 0; j < scores_newSpace[i].size(); j++)
+        {
+            sum+= scores_newSpace[i][j];
+        }
+        silhouete_scores_newSpace.push_back(sum/scores_newSpace[i].size());
+        s_total_newSpace += sum/scores_newSpace[i].size();
+    }
     
     //Write the output to the output file
     ofstream outfile;
     outfile.open(output_file); //Create the output file
 
-    outfile << "Algorithm:" << method << "\n";
+    outfile << "NEW SPACE:" << method << "\n";
+    for (int i = 0; i < results_newSpace.first.size(); i++)
+    {
+        outfile << "CLUSTER-" << i + 1 << " {size:" << results_newSpace.first[i].size();
+        outfile << ",centroid:";
+        for (int j = 0; j < results_newSpace.second[i].size(); j++)
+        {
+            outfile << results_newSpace.second[i][j] << "  ";
+        }
+        outfile << "}";
+    }
+    double clustering_time = double(end - start) / double(CLOCKS_PER_SEC);
+    outfile << "Clustering time:" << clustering_time << "\n";
+
+    outfile << "Silhouette:[";
+    for (int i = 0; i < silhouete_scores_newSpace.size(); i++)
+    {
+        outfile << silhouete_scores_newSpace[i] << " ";
+    }
+    outfile << s_total << " ]\n";
+
+
+    outfile << "ORIGINAL SPACE:" << method << "\n";
     for (int i = 0; i < results.first.size(); i++)
     {
         outfile << "CLUSTER-" << i + 1 << " {size:" << results.first[i].size();
@@ -257,7 +314,7 @@ int main(int argc, char const *argv[])
         }
         outfile << "}";
     }
-    double clustering_time = double(end - start) / double(CLOCKS_PER_SEC);
+    clustering_time = double(end - start) / double(CLOCKS_PER_SEC);
     outfile << "Clustering time:" << clustering_time << "\n";
 
     outfile << "Silhouette:[";
