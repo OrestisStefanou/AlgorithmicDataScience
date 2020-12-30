@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
     char method[50];
     bool complete_flag = false;
 
-    if (argc > 11)
+    if (argc == 11)
     {
         //Parse the command line arguments
         for (int i = 1; i < argc; i++)
