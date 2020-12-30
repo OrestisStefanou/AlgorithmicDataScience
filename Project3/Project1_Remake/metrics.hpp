@@ -59,8 +59,8 @@ int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
         //Initialize weights(We give the same weight to each pixel)
         for (int i = 0; i < a.size(); i++)
         {
-            aw.push_back(1);
-            bw.push_back(1);
+            aw.push_back(10);
+            bw.push_back(10);
         }
         distance = emd(a,aw,b,bw);
         return distance;
@@ -68,7 +68,8 @@ int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
     return distance;
 }
 
-void compareResults(vector<int> &trainLabels,vector<int> &testLabels,vector<pair<int, int>> &results,int queryIndex){
+//Returns a pair with number of correct and wrong predictions
+pair<int,int> compareResults(vector<int> &trainLabels,vector<int> &testLabels,vector<pair<int, int>> &results,int queryIndex){
     int correct = 0;
     int wrong = 0;
     int queryLabel = testLabels[queryIndex];
@@ -82,9 +83,9 @@ void compareResults(vector<int> &trainLabels,vector<int> &testLabels,vector<pair
             wrong++;
         }
     }
-    cout << correct << " correct neighbors found" << endl;
-    cout << wrong << " wrong neighbors found" << endl;
-
+    //cout << correct << " correct neighbors found" << endl;
+    //cout << wrong << " wrong neighbors found" << endl;
+    return make_pair(correct,wrong);
 }
 
 #endif
