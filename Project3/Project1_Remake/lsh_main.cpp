@@ -290,7 +290,9 @@ int main(int argc, char const *argv[])
 
         ofstream outfile;
         outfile.open(output_file); //Create the outpout file
-
+        
+        double ApproxFactorLSH,ApproxFactorRed;
+        int ApproxFactorCounter;
         for (int i = 0; i < 1; i++)
         {
             //Find the approximate N nearest neighbors
@@ -313,7 +315,10 @@ int main(int argc, char const *argv[])
 
             //Check the results
             //compareResults(trainLabels,testLabels,appr_results,i);
-
+            
+            ApproxFactorLSH=0;
+            ApproxFactorRed=0;
+            ApproxFactorCounter=0;
             //Write the results in the output file
             outfile << "Query:" << i << "\n";
             for (int j = 0; j < appr_results.size(); j++)
@@ -324,10 +329,23 @@ int main(int argc, char const *argv[])
                 outfile << "distanceReduced:" << exact_results_latent[j].second << "\n";
                 outfile << "distanceLSH:" << appr_results[j].second << "\n";
                 outfile << "distanceTrue:" << exact_results[j].second << "\n";
+
+                //Sum Approximation Factor
+                //ApproxFactorLSH=ApproxFactorLSH+(appr_results[j].second/exact_results[j].second);
+                //ApproxFactorRed=ApproxFactorRed+(exact_results_latent[j].second/exact_results[j].second);
+                //ApproxFactorCounter++;
+
             }
             outfile << "tReduced:" << setprecision(5) << exact_knn_time_latent << "\n";
             outfile << "tLSH:" << setprecision(5) << appr_knn_time << "\n";
             outfile << "tTrue:" << setprecision(5) << exact_knn_time << "\n";
+
+
+            //Calculate average Approximation Factor
+            //ApproxFactorLSH=ApproxFactorLSH/ApproxFactorCounter;
+            //ApproxFactorRed=ApproxFactorRed/ApproxFactorCounter;
+            //outfile << "Approximation Factor LSH:" << setprecision(5) << ApproxFactorLSH << "\n";
+            //outfile << "Approximation Factor Reduced:" << setprecision(5) << ApproxFactorRed << "\n";
         }
         outfile.close();
 
