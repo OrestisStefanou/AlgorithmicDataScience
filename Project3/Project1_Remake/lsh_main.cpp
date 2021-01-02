@@ -331,9 +331,9 @@ int main(int argc, char const *argv[])
                 outfile << "distanceTrue:" << exact_results[j].second << "\n";
 
                 //Sum Approximation Factor
-                //ApproxFactorLSH=ApproxFactorLSH+(appr_results[j].second/exact_results[j].second);
-                //ApproxFactorRed=ApproxFactorRed+(exact_results_latent[j].second/exact_results[j].second);
-                //ApproxFactorCounter++;
+                ApproxFactorLSH=ApproxFactorLSH+(appr_results[j].second/exact_results[j].second);
+                ApproxFactorRed=ApproxFactorRed+(exact_results_latent[j].second/exact_results[j].second);
+                ApproxFactorCounter++;
 
             }
             outfile << "tReduced:" << setprecision(5) << exact_knn_time_latent << "\n";
@@ -342,10 +342,10 @@ int main(int argc, char const *argv[])
 
 
             //Calculate average Approximation Factor
-            //ApproxFactorLSH=ApproxFactorLSH/ApproxFactorCounter;
-            //ApproxFactorRed=ApproxFactorRed/ApproxFactorCounter;
-            //outfile << "Approximation Factor LSH:" << setprecision(5) << ApproxFactorLSH << "\n";
-            //outfile << "Approximation Factor Reduced:" << setprecision(5) << ApproxFactorRed << "\n";
+            double ApproximationFactorLSH=(double)ApproxFactorLSH/(double)ApproxFactorCounter;
+            double ApproximationFactorRed=(double)ApproxFactorRed/(double)ApproxFactorCounter;
+            outfile << "Approximation Factor LSH:" << setprecision(5) << ApproximationFactorLSH << "\n";
+            outfile << "Approximation Factor Reduced:" << setprecision(5) << ApproximationFactorRed << "\n";
         }
         outfile.close();
 
