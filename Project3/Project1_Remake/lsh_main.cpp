@@ -10,7 +10,7 @@ using namespace std;
 void print_help()
 {
     cout << "Usage is:" << endl;
-    cout << "./lsh –d <input file> –q <query file> –k <int> -L <int> -ο <output file> -Ν <number of nearest> -R <radius>";
+    cout << "./search -d <input file original space> -i <input file new space> -q <query file original space> -s <query file new space> -k <int> -L <int> -ο <output file>";
     cout << endl;
 }
 
