@@ -362,8 +362,13 @@ int main(int argc, char const *argv[])
             exit(1);
         }
 
-        LSH lsh = LSH(k, L, training_data_original, R,(char *)"EMD");
-        LSH lsh2 = LSH(k, L, training_data_original, R,(char *)"L1");
+        vector<vector<double>> training_data_clusters;
+        vector<vector<double>> query_data_clusters;
+        getImgsCluster(training_data_original,3,training_data_clusters);
+        getImgsCluster(query_data_original,3,query_data_clusters);
+
+        LSH lsh = LSH(k, L, training_data_clusters, R,(char *)"EMD");
+        LSH lsh2 = LSH(k, L, training_data_clusters, R,(char *)"L1");
         ofstream outfile;
         outfile.open(output_file); //Create the outpout file
 
@@ -371,11 +376,11 @@ int main(int argc, char const *argv[])
         int totalWrongEMD = 0;
         int totalCorrectL1 = 0;
         int totalWrongL1 = 0;
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 10; i++)
         {
             //Find the approximate N nearest neighbors
-            vector<pair<int, int>> appr_results_EMD = lsh.knn(query_data_original[i], i, N);
-            vector<pair<int, int>> appr_results_L1 = lsh2.knn(query_data_original[i], i, N);
+            vector<pair<int, int>> appr_results_EMD = lsh.knn(query_data_clusters[i], i, N);
+            vector<pair<int, int>> appr_results_L1 = lsh2.knn(query_data_clusters[i], i, N);
             //Check the results
             pair<int,int> results;
             results = compareResults(trainLabels,testLabels,appr_results_EMD,i);
