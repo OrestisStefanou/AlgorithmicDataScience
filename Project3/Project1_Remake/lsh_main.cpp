@@ -270,8 +270,6 @@ int main(int argc, char const *argv[])
         exit(1);
     } 
     
-
-    
     if(EMD_flag == 0){
         //Read the new space training dataset
         if (ReadDataCompressed(training_data_new_space, (char *)input_file_new_space))
@@ -293,6 +291,7 @@ int main(int argc, char const *argv[])
         
         double ApproxFactorLSH,ApproxFactorRed;
         int ApproxFactorCounter;
+
         for (int i = 0; i < 1; i++)
         {
             //Find the approximate N nearest neighbors

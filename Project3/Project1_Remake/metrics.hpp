@@ -4,6 +4,7 @@
 #include <bits/stdc++.h> 
 #include<string.h>
 #include"EMD.hpp"
+#include<math.h>
 
 using namespace std;
 
@@ -66,6 +67,32 @@ int Metrics::get_distance(vector<double> a,vector<double> b,char *type){
         return distance;
     }
     return distance;
+}
+
+//Creates a new dataset in imgsCluster vector with a cluster of size dim for every image
+void getImgsCluster(vector<vector<double>> &images,int dim,vector<vector<double>> &imgsCluster){
+    imgsCluster.resize(images.size(), vector<double>(dim * dim)); //Resize the vector
+    int originalDim = int(sqrt(images[0].size()));
+    int startClusterIndex = (originalDim - dim)/2;
+    //cout << originalDim << endl;
+    //cout << startClusterIndex << endl;
+    for (int i = 0; i < images.size(); i++)
+    {
+        int clusterColIndex = (startClusterIndex * originalDim) + startClusterIndex;
+        for (int j = 0; j < dim; j++)
+        {
+            
+            for (int k = 0; k < dim; k++)
+            {
+                int colIdx = (j + k) + (j*(dim-1));
+                //cout << colIdx << " ";
+                imgsCluster[i][colIdx] = images[i][clusterColIndex];
+                clusterColIndex++;
+            }
+            //cout << endl;
+            clusterColIndex = (startClusterIndex * originalDim) + ((j+1) * originalDim) + startClusterIndex;
+        }
+    }
 }
 
 //Returns a pair with number of correct and wrong predictions
