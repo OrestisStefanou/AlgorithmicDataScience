@@ -364,8 +364,8 @@ int main(int argc, char const *argv[])
 
         vector<vector<double>> training_data_clusters;
         vector<vector<double>> query_data_clusters;
-        getImgsCluster(training_data_original,3,training_data_clusters);
-        getImgsCluster(query_data_original,3,query_data_clusters);
+        getImgsCluster(training_data_original,20,training_data_clusters);
+        getImgsCluster(query_data_original,20,query_data_clusters);
 
         LSH lsh = LSH(k, L, training_data_clusters, R,(char *)"EMD");
         LSH lsh2 = LSH(k, L, training_data_clusters, R,(char *)"L1");

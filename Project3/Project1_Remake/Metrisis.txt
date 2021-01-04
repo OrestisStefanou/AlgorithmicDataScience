@@ -21,7 +21,7 @@ To N den epireazi idietera tous xronous
 
 EROTIMA G:
 -Xronos LSH me simpiesmena dedomena kai EMD:30.985
--Xronos brute force me ta arxika dedomena kai EMD:32.8041
+-Xronos brute force me ta simpiesmena dedomena kai EMD:32.8041
 -Apotelesmata 10 kontinoteron gitonon:
     5 sosta 5 lathos
 
@@ -31,9 +31,21 @@ EROTIMA G:
     1 sosta 9 lathos
 
 Apotelesmata erotimatos G me cluster eikonon 7 x 7
-Average Correct Search Results EMD:0
-Average Correct Search Results MANHATTAN:1
+Average Correct Search Results EMD:0, Xronos:100.734
+Average Correct Search Results MANHATTAN:0, Xronos:4.345
 
 Apotelesmata erotimatos G me cluster eikonon 3 x 3
-Average Correct Search Results EMD:0
-Average Correct Search Results MANHATTAN:0
+Average Correct Search Results EMD:0, Xronos:20.145
+Average Correct Search Results MANHATTAN:0, Xronos:0,43
+
+Apotelesmata erotimatos G me cluster eikonon 4 x 4
+Average Correct Search Results EMD:0, Xronos:24.098
+Average Correct Search Results MANHATTAN:0, Xronos:0.55
+
+Apotelesmata erotimatos G me cluster eikonon 10 x 10
+Average Correct Search Results EMD:0, Xronos:155.623
+Average Correct Search Results MANHATTAN:0, Xronos:5.312
+
+Apotelesmata erotimatos G me cluster eikonon 20 x 20
+Average Correct Search Results EMD:0, Xronos:345.221
+Average Correct Search Results MANHATTAN:0, Xronos:5.980

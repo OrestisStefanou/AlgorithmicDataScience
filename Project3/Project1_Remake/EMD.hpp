@@ -77,30 +77,39 @@ template <typename T>
 T emd(vector<T> &A, vector<T> AWeights, vector<T> &B,
               vector<T> BWeights) {
 
+  //Create a new vector(allValues) with the values of A and B vector sorted              
   vector<T> allValues;
   concatenateSort(A, B, allValues);
 
+  //Create a new vector(deltas) with the delta values
   vector<T> deltas;
   diff(allValues, deltas);
 
+  //Create a new vector(idxA) with sorted indexes based on values in A
   vector<size_t> idxA(A.size());
   argsort(A, idxA);
 
+  //Create a new vector(idxB) with sorted indexes based on values in B
   vector<size_t> idxB(B.size());
   argsort(B, idxB);
 
+  //Create a new vector with cdfIndexes of A
   vector<size_t> cdfIdxA;
   searchSorted(A, idxA, allValues, cdfIdxA);
 
+  //Create a new vector with cdfIndexes of B
   vector<size_t> cdfIdxB;
   searchSorted(B, idxB, allValues, cdfIdxB);
 
+  //Create cdf vector of A
   vector<T> cdfA;
   computeCDF(AWeights, idxA, cdfIdxA, cdfA);
 
+  //Create cdf vector of B
   vector<T> cdfB;
   computeCDF(BWeights, idxB, cdfIdxB, cdfB);
 
+  //Calculate and return earth mover's distance of A and B
   return computeDist(cdfA, cdfB, deltas);
 }
 } // namespace std
