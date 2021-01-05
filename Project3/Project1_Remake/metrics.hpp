@@ -5,6 +5,7 @@
 #include <string.h>
 #include "EMD.hpp"
 #include <math.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -23,6 +24,7 @@ public:
     Metrics();
     ~Metrics();
     int get_distance(vector<double> a, vector<double> b, char *type);
+    int get_distance(vector<double> a, vector<double> b, vector<double> aweight, vector<double> bweight, char *type);
     //Add more distance metrics here
 };
 
@@ -72,15 +74,46 @@ int Metrics::get_distance(vector<double> a, vector<double> b, char *type)
     return distance;
 }
 
+//Returns the "type" distance between vector a and vector b
+//type = "L1"->returns Manhatan distance
+//type = "EMD"->returns Earth mover's distance
+int Metrics::get_distance(vector<double> a, vector<double> b, vector<double> aweight, vector<double> bweight, char *type)
+{
+    double distance = 0;
+    if (a.size() != b.size())
+    {
+        cout << "Size of two vectors is not the same" << endl;
+        return -1;
+    }
+    //Manhattan distance
+    if (strcmp((char *)"L1", type) == 0)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            distance += abs(double(a[i]) - double(b[i]));
+        }
+        return distance;
+    }
+    //Earth mover's distance
+    if (strcmp((char *)"EMD", type) == 0)
+    {   
+         distance = emd(a, aweight, b, bweight);
+        if (distance != distance)
+            return 0;
+        return distance;
+    }
+    return distance;
+}
+
 //Creates a new dataset in imgsCluster vector with a cluster of size dim for every image
 void getImgsCluster(vector<vector<double>> &images, int dim, vector<vector<double>> &Centroids, vector<vector<double>> &Weights)
 {
-    Centroids.resize(images.size(), vector<double>(dim * dim)); //Resize the vector
-    Weights.resize(images.size(), vector<double>(dim * dim));   //Resize the vector
+    Centroids.resize(images.size(), vector<double>(dim)); //Resize the vector
+    Weights.resize(images.size(), vector<double>(dim));   //Resize the vector
     int originalDim = int(sqrt(images[0].size()));
     int newImageDim = int(sqrt(dim));
     int PixelsPerCluster = originalDim / newImageDim;
-    int centroid = ((PixelsPerCluster ^ 2) / 2) + 1;
+    int centroid = ((PixelsPerCluster *PixelsPerCluster) / 2);
     for (int i = 0; i < images.size(); i++)
     {
         int clusterColIndex = 0;
@@ -89,7 +122,7 @@ void getImgsCluster(vector<vector<double>> &images, int dim, vector<vector<doubl
         for (int j = 0; j < dim; j++)
         {
             double ClusterSign = 0;
-            int centroidCounter = 0;
+            double centroidCounter = 0;
             for (int k = clusterRowIndex; k < PixelsPerCluster + clusterRowIndex; k++)
             {
                 for (int m = clusterColIndex; m < PixelsPerCluster + clusterColIndex; m++)
@@ -97,10 +130,12 @@ void getImgsCluster(vector<vector<double>> &images, int dim, vector<vector<doubl
                     ClusterSign = ClusterSign + images[i][(PixelsPerCluster * k) + m];
                     if (centroidCounter == centroid)
                     {
-                        Centroids[i][j] = images[i][(PixelsPerCluster * k) + m];
+                        Centroids[i][j] =k+m;
                     }
+                    centroidCounter++;
                 }
             }
+            
             if (RowCounter == 0)
             {
                 RowCounter = newImageDim - 1;
@@ -123,8 +158,9 @@ pair<int, int> compareResults(vector<int> &trainLabels, vector<int> &testLabels,
     int correct = 0;
     int wrong = 0;
     int queryLabel = testLabels[queryIndex];
+
     for (int i = 0; i < results.size(); i++)
-    {
+    {   
         if (trainLabels[results[i].first] == queryLabel)
         {
             correct++;
@@ -136,6 +172,7 @@ pair<int, int> compareResults(vector<int> &trainLabels, vector<int> &testLabels,
     }
     //cout << correct << " correct neighbors found" << endl;
     //cout << wrong << " wrong neighbors found" << endl;
+    //cout <<endl;
     return make_pair(correct, wrong);
 }
 
