@@ -235,6 +235,7 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
+
     Clustering cluster = Clustering(training_data_original,(char *)"L1");
     Clustering cluster2 = Clustering(training_data_new_space,(char *)"L1");
 
@@ -243,11 +244,14 @@ int main(int argc, char const *argv[])
     start = clock();
     results = cluster.loyds(K);
     end = clock();
+    double clustering_time = double(end - start) / double(CLOCKS_PER_SEC);
 
+    clock_t start2, end2;
     pair<vector<vector<int>>, vector<vector<double>>> results_newSpace;
-    start = clock();
+    start2 = clock();
     results_newSpace = cluster2.loyds(K);
-    end = clock();
+    end2 = clock();
+    double clustering_time_NewSpace = double(end2 - start2) / double(CLOCKS_PER_SEC);
 
     vector<vector<double>> scores = cluster.silhouette_score(results.first, results.second);
     vector<double>silhouete_scores;
@@ -281,7 +285,7 @@ int main(int argc, char const *argv[])
     ofstream outfile;
     outfile.open(output_file); //Create the output file
 
-    outfile << "NEW SPACE:" << method << "\n";
+    outfile << "NEW SPACE:" << "K medians" << "\n";
     for (int i = 0; i < results_newSpace.first.size(); i++)
     {
         outfile << "CLUSTER-" << i + 1 << " {size:" << results_newSpace.first[i].size();
@@ -292,8 +296,8 @@ int main(int argc, char const *argv[])
         }
         outfile << "}";
     }
-    double clustering_time = double(end - start) / double(CLOCKS_PER_SEC);
-    outfile << "Clustering time:" << clustering_time << "\n";
+    
+    outfile << "Clustering time:" << clustering_time_NewSpace << "\n";
 
     outfile << "Silhouette:[";
     for (int i = 0; i < silhouete_scores_newSpace.size(); i++)
@@ -303,7 +307,7 @@ int main(int argc, char const *argv[])
     outfile << s_total << " ]\n";
 
 
-    outfile << "ORIGINAL SPACE:" << method << "\n";
+    outfile << "ORIGINAL SPACE:" << "K medians" << "\n";
     for (int i = 0; i < results.first.size(); i++)
     {
         outfile << "CLUSTER-" << i + 1 << " {size:" << results.first[i].size();
