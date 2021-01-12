@@ -1,4 +1,4 @@
-lsh:
+search:
 	@echo " Compile Search ...";
 	g++ lsh_main.cpp -o search
 cube:
