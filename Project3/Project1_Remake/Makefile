@@ -1,5 +1,5 @@
 lsh:
-	@echo " Compile LSH ...";
+	@echo " Compile Search ...";
 	g++ lsh_main.cpp -o search
 cube:
 	@echo " Compile Binary Hyper Cube ...";
