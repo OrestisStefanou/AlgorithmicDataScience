@@ -25,26 +25,28 @@ def read_data(filename):
         return data
     
 def saveNewImages(compressedImgs,filename):
-  f = open(filename,"w")
-  #The first line will contain the number of images
-  f.write(str(len(compressedImgs)) + "\n")
-  #The second line will contain the number of rows
-  f.write(str(len(compressedImgs[0])) + "\n")
-  #The third line will contain the number of columns
-  f.write(str(len(compressedImgs[0][0])) + "\n")
-  #For the rest of the file each line contains the pixels of an image
-  #seperated by spaces
-  for image in compressedImgs:
-    for row in image:
-      for pixel in row:
-        strPixel = str(pixel)
-        strPixel = strPixel.strip('[')
-        strPixel = strPixel.strip(']')
-        f.write(strPixel + " ")
-    f.write("\n")
-  f.close()
+    f = open(filename,"w")
+    #The first line will contain the number of images
+    f.write(str(len(compressedImgs)) + "\n")
+    #The second line will contain the number of rows
+    f.write(str(len(compressedImgs[0])) + "\n")
+    #The third line will contain the number of columns
+    try:
+        f.write(str(len(compressedImgs[0][0])) + "\n")
+    except:
+        f.write("1\n")
+    #For the rest of the file each line contains the pixels of an image
+    #seperated by spaces
+    for image in compressedImgs:
+        for pixel in image:
+            strPixel = str(pixel)
+            strPixel = strPixel.strip('[')
+            strPixel = strPixel.strip(']')
+            f.write(strPixel + " ")
+        f.write("\n")
+    f.close()
  
- def normalize(x):
+def normalize(x):
     return (25500*(x - np.min(x))/np.ptp(x)).astype(int)
     
 #Check program arguments
